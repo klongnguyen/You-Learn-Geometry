@@ -1,115 +1,731 @@
+@model YouLearnGeometry.ViewModels.RealWorldViewModel
 @{
-    ViewData["Title"] = "Real-world Geometry - Phân tích ảnh thực tế (Coming Soon)";
+    ViewData["Title"] = "Hình học thực tế - You Learn Geometry";
 }
 
-<div class="row justify-content-center py-4">
-    <div class="col-lg-10">
-        <!-- Coming Soon Header Banner -->
-        <div class="hero-banner mb-5 text-center p-5">
-            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-3">
-                Tính năng đang hoàn thiện
-            </span>
-            <h1 class="display-5 fw-extrabold mb-3">Phân Tích Hình Học Từ Ảnh Thực Tế</h1>
-            <p class="lead text-white-50 mx-auto" style="max-width: 680px;">
-                Quét vật thể từ cuộc sống hàng ngày (gạch hoa, cánh diều, biển báo...) và tự động chuyển hóa thành mô hình hình học phẳng để khám phá tính chất.
+<style>
+    .sample-pill-btn {
+        transition: all 0.2s ease;
+        border: 1px solid #e2e8f0;
+        cursor: pointer;
+        background: #ffffff;
+    }
+    .sample-pill-btn:hover {
+        border-color: #93c5fd;
+        background-color: #f8fafc;
+        transform: translateY(-1px);
+    }
+    .sample-pill-btn.active {
+        border-color: #2563eb !important;
+        background-color: #eff6ff !important;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+    }
+    .canvas-container {
+        position: relative;
+        background: #0f172a;
+        border-radius: 16px;
+        overflow: hidden;
+        user-select: none;
+        touch-action: none;
+    }
+    #realWorldImg {
+        display: block;
+        width: 100%;
+        height: auto;
+        max-height: 580px;
+        object-fit: contain;
+        pointer-events: none;
+    }
+    #geometryCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        cursor: crosshair;
+    }
+    .metric-badge {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.85rem;
+    }
+</style>
+
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-3 border-bottom">
+        <div>
+            <h2 class="fw-extrabold text-dark mb-1">Hình học trong thực tiễn (Geometry Real World)</h2>
+            <p class="text-muted mb-0 small" style="max-width: 750px;">
+                Khám phá mô hình hình học phẳng từ vật thể đời thực. Chọn vật thể mẫu hoặc tải ảnh từ máy, sau đó kéo thả các đỉnh trên ảnh để khớp với góc cạnh của vật thể để hệ thống tự động đo góc, cạnh và phân loại hình học.
             </p>
         </div>
+        <div class="d-flex align-items-center gap-2">
+            <label for="customImageInput" class="btn btn-outline-primary btn-sm px-3 py-2 fw-semibold d-inline-flex align-items-center gap-2">
+                <span>Tải ảnh từ máy</span>
+            </label>
+            <input type="file" id="customImageInput" accept="image/*" class="d-none" />
+        </div>
+    </div>
 
-        <!-- Workflow Illustration -->
-        <div class="ylg-card p-4 p-md-5 mb-5">
-            <h4 class="fw-bold text-dark text-center mb-4">Quy trình phân tích hình học</h4>
+    <!-- Preset Samples Gallery -->
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em;">Vật thể thực tế mẫu</span>
+            <span class="text-muted small">6 mẫu chuẩn THCS</span>
+        </div>
+        <div class="d-flex flex-wrap gap-2" id="samplesGallery">
+            @foreach (var sample in Model.Samples)
+            {
+                bool isActive = (sample.Id == Model.ActiveSampleId);
+                <button type="button"
+                        class="sample-pill-btn d-flex align-items-center gap-2 px-3 py-2 rounded-3 text-start @(isActive ? "active text-primary fw-semibold" : "text-dark")"
+                        data-sample-id="@sample.Id"
+                        onclick="loadPresetSample('@sample.Id')">
+                    <img src="@sample.ImageUrl" alt="@sample.Title" class="rounded-circle object-fit-cover flex-shrink-0" style="width: 28px; height: 28px;" />
+                    <div class="small">
+                        <div class="fw-semibold lh-sm">@sample.Title</div>
+                        <div class="text-muted" style="font-size: 0.72rem;">@sample.ExpectedShape</div>
+                    </div>
+                </button>
+            }
+        </div>
+    </div>
 
-            <div class="row g-4 text-center">
-                <div class="col-md-3">
-                    <div class="p-4 bg-light rounded-4 h-100 border">
-                        <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center fw-bold fs-5 mb-3" style="width:48px; height:48px;">
-                            1
+    <!-- Main Workspace: Stage on Left, Analysis on Right -->
+    <div class="row g-4">
+        <!-- LEFT: Interactive Canvas Stage -->
+        <div class="col-lg-7">
+            <div class="card border rounded-4 shadow-sm p-3 bg-white h-100 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+                    <div class="small text-muted" id="canvasStatusText">
+                        Kéo các điểm tròn để điều chỉnh đỉnh khớp với vật thể
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" id="btnResetContour" title="Đặt lại vị trí đường bao ban đầu" onclick="resetCurrentContour()">
+                            Đặt lại
+                        </button>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-primary active py-1 px-2" id="btnModePolygon" onclick="setMode('polygon')">Đa giác</button>
+                            <button type="button" class="btn btn-outline-primary py-1 px-2" id="btnModeCircle" onclick="setMode('circle')">Hình tròn</button>
                         </div>
-                        <h6 class="fw-bold text-dark">Tải ảnh lên</h6>
-                        <small class="text-muted">Tải ảnh chụp vật thể rõ nét (JPEG/PNG &le; 5MB).</small>
                     </div>
                 </div>
 
-                <div class="col-md-3">
-                    <div class="p-4 bg-light rounded-4 h-100 border">
-                        <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center fw-bold fs-5 mb-3" style="width:48px; height:48px;">
-                            2
-                        </div>
-                        <h6 class="fw-bold text-dark">Xử lý ảnh</h6>
-                        <small class="text-muted">Khử nhiễu và phát hiện các đường biên vật thể.</small>
-                    </div>
+                <!-- Canvas Wrapper -->
+                <div class="canvas-container flex-grow-1 d-flex align-items-center justify-content-center" id="stageWrapper">
+                    <img id="realWorldImg" src="/images/realworld/tile_square.jpg" alt="Vật thể thực tế" />
+                    <canvas id="geometryCanvas"></canvas>
                 </div>
 
-                <div class="col-md-3">
-                    <div class="p-4 bg-light rounded-4 h-100 border">
-                        <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center fw-bold fs-5 mb-3" style="width:48px; height:48px;">
-                            3
+                <!-- Stage Controls Footer -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 pt-2 border-top small text-muted">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="form-check form-check-inline mb-0">
+                            <input class="form-check-input" type="checkbox" id="chkShowMeasurements" checked onchange="drawCanvas()" />
+                            <label class="form-check-label" for="chkShowMeasurements">Hiện số đo góc & cạnh</label>
                         </div>
-                        <h6 class="fw-bold text-dark">Trích xuất đa giác</h6>
-                        <small class="text-muted">Xác định các đỉnh và các đoạn thẳng bao quanh.</small>
+                        <div class="form-check form-check-inline mb-0">
+                            <input class="form-check-input" type="checkbox" id="chkShowDiagonals" checked onchange="drawCanvas()" />
+                            <label class="form-check-label" for="chkShowDiagonals">Hiện đường chéo</label>
+                        </div>
                     </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="p-4 bg-light rounded-4 h-100 border">
-                        <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center fw-bold fs-5 mb-3" style="width:48px; height:48px;">
-                            4
-                        </div>
-                        <h6 class="fw-bold text-dark">Kết luận & Gợi ý</h6>
-                        <small class="text-muted">Nhận diện hình học và đề xuất bài học liên quan.</small>
+                    <div class="d-flex align-items-center gap-2" id="polygonVertexControls">
+                        <button type="button" class="btn btn-sm btn-light border py-0 px-2" onclick="addVertex()" title="Thêm một đỉnh mới">+ Thêm đỉnh</button>
+                        <button type="button" class="btn btn-sm btn-light border py-0 px-2" onclick="removeVertex()" title="Bớt một đỉnh">- Bớt đỉnh</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Interactive Preview Mockup -->
-        <div class="ylg-card p-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold text-dark mb-0">
-                    Minh họa nhận diện hình ảnh
-                </h5>
-                <span class="badge bg-secondary">Mô phỏng</span>
-            </div>
-
-            <div class="row g-4 align-items-center">
-                <div class="col-md-6 text-center">
-                    <div class="border rounded-4 p-4 bg-light position-relative overflow-hidden">
-                        <svg width="240" height="200" viewBox="0 0 240 200" style="background:#fff; border-radius:12px;" class="shadow-sm">
-                            <rect x="30" y="20" width="180" height="160" fill="#f8fafc" stroke="#94a3b8" stroke-dasharray="3,3" />
-                            <polygon points="40,30 200,30 200,170 40,170" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="3" />
-                            <circle cx="40" cy="30" r="5" fill="#10b981" />
-                            <circle cx="200" cy="30" r="5" fill="#10b981" />
-                            <circle cx="200" cy="170" r="5" fill="#10b981" />
-                            <circle cx="40" cy="170" r="5" fill="#10b981" />
-                        </svg>
-                        <span class="badge bg-success position-absolute top-0 start-0 m-3">
-                            Đường bao đã nhận diện
-                        </span>
+        <!-- RIGHT: Real-time Analysis Intelligence Panel -->
+        <div class="col-lg-5">
+            <div class="card border rounded-4 shadow-sm p-4 bg-white h-100 d-flex flex-column gap-3">
+                <!-- Shape Classification Card Header -->
+                <div class="p-3 rounded-3 bg-primary-subtle border border-primary-subtle">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-uppercase text-muted fw-bold" style="font-size: 0.72rem; letter-spacing: 0.05em;">Hình học nhận diện</span>
+                        <span class="badge bg-primary rounded-pill fw-semibold" id="confidenceBadge">Độ tin cậy: 97%</span>
+                    </div>
+                    <h3 class="fw-extrabold text-primary mb-1" id="shapeNameDisplay">Hình vuông</h3>
+                    <div class="small text-muted" id="shapeTipDisplay">
+                        Gạch lát nền hình vuông giúp ghép khít không để lại khe hở nhờ tổng 4 góc tại một đỉnh là 360°.
                     </div>
                 </div>
 
-                <div class="col-md-6">
-                    <span class="badge bg-primary-subtle text-primary mb-2">Kết quả nhận diện</span>
-                    <h3 class="fw-bold text-dark mb-2">Hình chữ nhật</h3>
-                    <p class="text-muted small mb-3">
-                        Hệ thống đã nhận diện 4 góc vuông (90°) và hai cặp cạnh đối song song từ đường bao vật thể thực tế.
-                    </p>
+                <!-- Geometric Measurements -->
+                <div>
+                    <h6 class="fw-bold text-dark mb-2 small text-uppercase" style="letter-spacing: 0.05em;">Thông số đo đạc thời gian thực</h6>
+                    <div class="row g-2 mb-2" id="metricsRow">
+                        <div class="col-6">
+                            <div class="p-2 rounded-2 bg-light border small">
+                                <span class="text-muted d-block" style="font-size: 0.72rem;">Chu vi (P)</span>
+                                <strong class="metric-badge text-dark" id="perimeterVal">--</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 rounded-2 bg-light border small">
+                                <span class="text-muted d-block" style="font-size: 0.72rem;">Diện tích (S)</span>
+                                <strong class="metric-badge text-dark" id="areaVal">--</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Side Lengths & Angles List -->
+                    <div class="p-2 rounded-2 bg-light border small mb-2" id="sidesAndAnglesBox">
+                        <div class="d-flex justify-content-between text-muted" style="font-size: 0.75rem;">
+                            <span id="sidesListText">Cạnh: --</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted mt-1" style="font-size: 0.75rem;">
+                            <span id="anglesListText">Góc: --</span>
+                        </div>
+                    </div>
+                </div>
 
-                    <div class="p-3 bg-light rounded-3 border mb-3">
-                        <strong class="d-block small text-dark mb-1">Bài học gợi ý:</strong>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-primary fw-semibold small">Hình chữ nhật</span>
-                            <a asp-controller="Curriculum" asp-action="Index" class="btn btn-sm btn-outline-primary">
-                                Học bài này
+                <!-- Identified Characteristics Checklist -->
+                <div>
+                    <h6 class="fw-bold text-dark mb-2 small text-uppercase" style="letter-spacing: 0.05em;">Dấu hiệu nhận biết đã phát hiện</h6>
+                    <div class="d-flex flex-column gap-2 small" id="characteristicsList">
+                        <div class="d-flex align-items-start gap-2 text-dark">
+                            <span class="text-success fw-bold">✓</span>
+                            <span>4 cạnh có độ dài bằng nhau</span>
+                        </div>
+                        <div class="d-flex align-items-start gap-2 text-dark">
+                            <span class="text-success fw-bold">✓</span>
+                            <span>4 góc vuông bằng 90°</span>
+                        </div>
+                        <div class="d-flex align-items-start gap-2 text-dark">
+                            <span class="text-success fw-bold">✓</span>
+                            <span>2 đường chéo bằng nhau và vuông góc tại trung điểm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulas -->
+                <div>
+                    <h6 class="fw-bold text-dark mb-2 small text-uppercase" style="letter-spacing: 0.05em;">Công thức tính toán (SGK)</h6>
+                    <div class="p-2 rounded-2 bg-light border small text-muted">
+                        <div class="mb-1"><strong>Chu vi:</strong> <span class="font-monospace text-dark" id="formulaP">P = 4 * a</span></div>
+                        <div><strong>Diện tích:</strong> <span class="font-monospace text-dark" id="formulaS">S = a²</span></div>
+                    </div>
+                </div>
+
+                <!-- Suggested Educational Actions -->
+                <div class="mt-auto pt-2 border-top">
+                    <div class="d-flex flex-column gap-2">
+                        <div class="p-3 rounded-3 border bg-light d-flex align-items-center justify-content-between" id="suggestedLessonBox">
+                            <div>
+                                <span class="text-muted d-block" style="font-size: 0.72rem;">Bài học liên quan trong chương trình:</span>
+                                <strong class="text-dark small d-block" id="suggestedLessonTitle">Hình thoi và Hình vuông</strong>
+                            </div>
+                            <a id="btnGoToLesson" href="/Curriculum" class="btn btn-sm btn-primary fw-semibold px-3 py-2 flex-shrink-0">
+                                Học bài này →
+                            </a>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a asp-controller="GeometryLab" asp-action="Index" class="btn btn-sm btn-outline-secondary w-50 py-2">
+                                Geometry Lab
+                            </a>
+                            <a asp-controller="KnowledgeMap" asp-action="Index" class="btn btn-sm btn-outline-secondary w-50 py-2">
+                                Bản đồ tri thức
                             </a>
                         </div>
                     </div>
-
-                    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-ylg-primary">
-                        Về trang chủ
-                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Data injected from backend
+        const samplesData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Samples));
+        let activeSampleId = "@Model.ActiveSampleId";
+        let currentMode = "polygon"; // "polygon" | "circle"
+
+        // Active geometric state in percentage (0-100) relative to image natural or rendered size
+        let vertices = []; // array of { x: %, y: % }
+        let circleCenter = { x: 50, y: 50 };
+        let circleRadius = 35; // % of width
+
+        // Interaction state
+        let draggingIndex = -1; // -1: none, 0..n-1: vertex index, 1000: circle center, 1001: circle perimeter handle
+        let debounceTimer = null;
+
+        const imgEl = document.getElementById('realWorldImg');
+        const canvasEl = document.getElementById('geometryCanvas');
+        const ctx = canvasEl.getContext('2d');
+        const stageWrapper = document.getElementById('stageWrapper');
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initSample(activeSampleId);
+            setupCanvasEvents();
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                drawCanvas();
+            });
+        });
+
+        imgEl.addEventListener('load', () => {
+            resizeCanvas();
+            drawCanvas();
+            triggerAnalyze();
+        });
+
+        function resizeCanvas() {
+            canvasEl.width = imgEl.clientWidth;
+            canvasEl.height = imgEl.clientHeight;
+        }
+
+        function initSample(id) {
+            const sample = samplesData.find(s => s.Id === id) || samplesData[0];
+            activeSampleId = sample.Id;
+            currentMode = sample.Mode || "polygon";
+
+            imgEl.src = sample.ImageUrl;
+
+            if (currentMode === "circle") {
+                circleCenter = { ...sample.CircleCenter };
+                circleRadius = sample.CircleRadius || 35;
+                setMode('circle', false);
+            } else {
+                vertices = sample.DefaultVertices.map(v => ({ x: v.X, y: v.Y }));
+                setMode('polygon', false);
+            }
+
+            // Update gallery buttons UI
+            document.querySelectorAll('.sample-pill-btn').forEach(btn => {
+                if (btn.getAttribute('data-sample-id') === id) {
+                    btn.classList.add('active', 'text-primary', 'fw-semibold');
+                    btn.classList.remove('text-dark');
+                } else {
+                    btn.classList.remove('active', 'text-primary', 'fw-semibold');
+                    btn.classList.add('text-dark');
+                }
+            });
+        }
+
+        function loadPresetSample(id) {
+            initSample(id);
+        }
+
+        function setMode(mode, trigger = true) {
+            currentMode = mode;
+            const btnPoly = document.getElementById('btnModePolygon');
+            const btnCircle = document.getElementById('btnModeCircle');
+            const polyControls = document.getElementById('polygonVertexControls');
+
+            if (mode === 'polygon') {
+                btnPoly.classList.add('active');
+                btnCircle.classList.remove('active');
+                polyControls.classList.remove('d-none');
+                if (vertices.length < 3) {
+                    vertices = [
+                        { x: 20, y: 20 },
+                        { x: 80, y: 20 },
+                        { x: 80, y: 80 },
+                        { x: 20, y: 80 }
+                    ];
+                }
+            } else {
+                btnCircle.classList.add('active');
+                btnPoly.classList.remove('active');
+                polyControls.classList.add('d-none');
+            }
+
+            drawCanvas();
+            if (trigger) triggerAnalyze();
+        }
+
+        function resetCurrentContour() {
+            initSample(activeSampleId);
+        }
+
+        function addVertex() {
+            if (currentMode !== 'polygon') return;
+            const n = vertices.length;
+            if (n >= 8) return; // limit max 8
+            // Add a vertex midway between last and first
+            const pLast = vertices[n - 1];
+            const pFirst = vertices[0];
+            const newPoint = {
+                x: (pLast.x + pFirst.x) / 2,
+                y: (pLast.y + pFirst.y) / 2
+            };
+            vertices.push(newPoint);
+            drawCanvas();
+            triggerAnalyze();
+        }
+
+        function removeVertex() {
+            if (currentMode !== 'polygon' || vertices.length <= 3) return;
+            vertices.pop();
+            drawCanvas();
+            triggerAnalyze();
+        }
+
+        // Custom Image Upload Handling
+        document.getElementById('customImageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                imgEl.src = evt.target.result;
+                activeSampleId = "custom";
+                // Reset active pills
+                document.querySelectorAll('.sample-pill-btn').forEach(btn => btn.classList.remove('active', 'text-primary', 'fw-semibold'));
+                // Set default polygon centered
+                vertices = [
+                    { x: 20, y: 20 },
+                    { x: 80, y: 20 },
+                    { x: 80, y: 80 },
+                    { x: 20, y: 80 }
+                ];
+                setMode('polygon', false);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Canvas Drawing Logic
+        function drawCanvas() {
+            const w = canvasEl.width;
+            const h = canvasEl.height;
+            if (w === 0 || h === 0) return;
+
+            ctx.clearRect(0, 0, w, h);
+
+            const showMeasure = document.getElementById('chkShowMeasurements').checked;
+            const showDiag = document.getElementById('chkShowDiagonals').checked;
+
+            if (currentMode === 'polygon') {
+                drawPolygon(w, h, showMeasure, showDiag);
+            } else {
+                drawCircle(w, h, showMeasure);
+            }
+        }
+
+        function drawPolygon(w, h, showMeasure, showDiag) {
+            const n = vertices.length;
+            if (n < 3) return;
+
+            const pxCoords = vertices.map(v => ({
+                x: (v.x / 100) * w,
+                y: (v.y / 100) * h
+            }));
+
+            // 1. Draw Diagonals if Quad
+            if (showDiag && n === 4) {
+                ctx.save();
+                ctx.strokeStyle = "rgba(148, 163, 184, 0.75)";
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([4, 4]);
+
+                // AC
+                ctx.beginPath();
+                ctx.moveTo(pxCoords[0].x, pxCoords[0].y);
+                ctx.lineTo(pxCoords[2].x, pxCoords[2].y);
+                ctx.stroke();
+
+                // BD
+                ctx.beginPath();
+                ctx.moveTo(pxCoords[1].x, pxCoords[1].y);
+                ctx.lineTo(pxCoords[3].x, pxCoords[3].y);
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // 2. Fill Polygon
+            ctx.save();
+            ctx.fillStyle = "rgba(37, 99, 235, 0.16)";
+            ctx.beginPath();
+            ctx.moveTo(pxCoords[0].x, pxCoords[0].y);
+            for (let i = 1; i < n; i++) {
+                ctx.lineTo(pxCoords[i].x, pxCoords[i].y);
+            }
+            ctx.closePath();
+            ctx.fill();
+
+            // 3. Stroke Polygon Edges
+            ctx.strokeStyle = "#2563eb";
+            ctx.lineWidth = 2.5;
+            ctx.setLineDash([]);
+            ctx.stroke();
+            ctx.restore();
+
+            // 4. Draw Side Measurements & Labels
+            const vertexLabels = ["A", "B", "C", "D", "E", "F", "G", "H"];
+            for (let i = 0; i < n; i++) {
+                const p1 = pxCoords[i];
+                const p2 = pxCoords[(i + 1) % n];
+
+                if (showMeasure) {
+                    const midX = (p1.x + p2.x) / 2;
+                    const midY = (p1.y + p2.y) / 2;
+                    const len = Math.round(Math.sqrt((p2.x - p1.x)**2 + (p2.y - p1.y)**2));
+
+                    ctx.save();
+                    ctx.font = "bold 11px system-ui, sans-serif";
+                    ctx.fillStyle = "#ffffff";
+                    ctx.shadowColor = "#000000";
+                    ctx.shadowBlur = 4;
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText(`${len}px`, midX, midY - 6);
+                    ctx.restore();
+                }
+
+                // Draw Vertex Handle
+                ctx.save();
+                ctx.fillStyle = (draggingIndex === i) ? "#f59e0b" : "#ffffff";
+                ctx.strokeStyle = "#2563eb";
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(p1.x, p1.y, 8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Vertex Letter
+                ctx.font = "bold 12px system-ui, sans-serif";
+                ctx.fillStyle = "#ffffff";
+                ctx.shadowColor = "#000000";
+                ctx.shadowBlur = 5;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "bottom";
+                ctx.fillText(vertexLabels[i] || `P${i+1}`, p1.x, p1.y - 10);
+                ctx.restore();
+            }
+        }
+
+        function drawCircle(w, h, showMeasure) {
+            const cx = (circleCenter.x / 100) * w;
+            const cy = (circleCenter.y / 100) * h;
+            const rPx = (circleRadius / 100) * w;
+
+            // Fill & Stroke Circle
+            ctx.save();
+            ctx.fillStyle = "rgba(37, 99, 235, 0.16)";
+            ctx.strokeStyle = "#2563eb";
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(cx, cy, rPx, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Radius Line
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.85)";
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + rPx, cy);
+            ctx.stroke();
+            ctx.restore();
+
+            if (showMeasure) {
+                ctx.save();
+                ctx.font = "bold 11px system-ui, sans-serif";
+                ctx.fillStyle = "#ffffff";
+                ctx.shadowColor = "#000000";
+                ctx.shadowBlur = 4;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "bottom";
+                ctx.fillText(`R = ${Math.round(rPx)}px`, cx + rPx / 2, cy - 4);
+                ctx.restore();
+            }
+
+            // Center Handle O
+            ctx.save();
+            ctx.fillStyle = (draggingIndex === 1000) ? "#f59e0b" : "#ffffff";
+            ctx.strokeStyle = "#2563eb";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.font = "bold 12px system-ui, sans-serif";
+            ctx.fillStyle = "#ffffff";
+            ctx.shadowColor = "#000000";
+            ctx.shadowBlur = 4;
+            ctx.fillText("O", cx, cy - 10);
+
+            // Radius Handle on border
+            const handleX = cx + rPx;
+            const handleY = cy;
+            ctx.fillStyle = (draggingIndex === 1001) ? "#f59e0b" : "#ffffff";
+            ctx.beginPath();
+            ctx.arc(handleX, handleY, 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillText("R", handleX, handleY - 10);
+            ctx.restore();
+        }
+
+        // Pointer Event Handling (Mouse & Touch Drag)
+        function setupCanvasEvents() {
+            canvasEl.addEventListener('pointerdown', (e) => {
+                const rect = canvasEl.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                const w = canvasEl.width;
+                const h = canvasEl.height;
+
+                draggingIndex = -1;
+
+                if (currentMode === 'polygon') {
+                    for (let i = 0; i < vertices.length; i++) {
+                        const px = (vertices[i].x / 100) * w;
+                        const py = (vertices[i].y / 100) * h;
+                        const dist = Math.hypot(mouseX - px, mouseY - py);
+                        if (dist <= 18) {
+                            draggingIndex = i;
+                            canvasEl.setPointerCapture(e.pointerId);
+                            break;
+                        }
+                    }
+                } else {
+                    const cx = (circleCenter.x / 100) * w;
+                    const cy = (circleCenter.y / 100) * h;
+                    const rPx = (circleRadius / 100) * w;
+
+                    if (Math.hypot(mouseX - cx, mouseY - cy) <= 18) {
+                        draggingIndex = 1000; // Center
+                        canvasEl.setPointerCapture(e.pointerId);
+                    } else if (Math.hypot(mouseX - (cx + rPx), mouseY - cy) <= 18) {
+                        draggingIndex = 1001; // Radius
+                        canvasEl.setPointerCapture(e.pointerId);
+                    }
+                }
+            });
+
+            canvasEl.addEventListener('pointermove', (e) => {
+                if (draggingIndex === -1) return;
+
+                const rect = canvasEl.getBoundingClientRect();
+                const mouseX = Math.max(0, Math.min(canvasEl.width, e.clientX - rect.left));
+                const mouseY = Math.max(0, Math.min(canvasEl.height, e.clientY - rect.top));
+                const w = canvasEl.width;
+                const h = canvasEl.height;
+
+                const percentX = (mouseX / w) * 100;
+                const percentY = (mouseY / h) * 100;
+
+                if (currentMode === 'polygon') {
+                    vertices[draggingIndex].x = percentX;
+                    vertices[draggingIndex].y = percentY;
+                } else {
+                    if (draggingIndex === 1000) {
+                        circleCenter.x = percentX;
+                        circleCenter.y = percentY;
+                    } else if (draggingIndex === 1001) {
+                        const cx = (circleCenter.x / 100) * w;
+                        const distPx = Math.abs(mouseX - cx);
+                        circleRadius = (distPx / w) * 100;
+                    }
+                }
+
+                drawCanvas();
+                debouncedAnalyze();
+            });
+
+            canvasEl.addEventListener('pointerup', (e) => {
+                if (draggingIndex !== -1) {
+                    try { canvasEl.releasePointerCapture(e.pointerId); } catch (_) {}
+                    draggingIndex = -1;
+                    triggerAnalyze();
+                }
+            });
+            canvasEl.addEventListener('pointercancel', () => {
+                draggingIndex = -1;
+            });
+        }
+
+        function debouncedAnalyze() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                triggerAnalyze();
+            }, 120);
+        }
+
+        async function triggerAnalyze() {
+            const w = canvasEl.width || 600;
+            const h = canvasEl.height || 600;
+
+            const payload = {
+                Mode: currentMode,
+                Points: vertices.map(v => ({
+                    X: (v.x / 100) * w,
+                    Y: (v.y / 100) * h
+                })),
+                CircleCenter: {
+                    X: (circleCenter.x / 100) * w,
+                    Y: (circleCenter.y / 100) * h
+                },
+                CircleRadius: (circleRadius / 100) * w,
+                ImageWidth: w,
+                ImageHeight: h
+            };
+
+            try {
+                const response = await fetch('/RealWorld/Analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) return;
+                const data = await response.json();
+                updateUIWithResult(data);
+            } catch (err) {
+                console.error("Lỗi khi phân tích hình học:", err);
+            }
+        }
+
+        function updateUIWithResult(data) {
+            document.getElementById('shapeNameDisplay').textContent = data.shapeName || "Đang phân tích...";
+            document.getElementById('confidenceBadge').textContent = `Độ tin cậy: ${data.confidence}%`;
+            document.getElementById('shapeTipDisplay').textContent = data.knowledgeTip || "";
+
+            // Metrics
+            document.getElementById('perimeterVal').textContent = `${data.perimeter} px`;
+            document.getElementById('areaVal').textContent = `${data.area} px²`;
+
+            // Sides & Angles
+            if (data.sideLengths && data.sideLengths.length > 0) {
+                document.getElementById('sidesListText').textContent = "Độ dài cạnh: " + data.sideLengths.map(l => `${l}px`).join(" | ");
+            }
+            if (data.angles && data.angles.length > 0) {
+                document.getElementById('anglesListText').textContent = "Số đo góc: " + data.angles.map(a => `${a}°`).join(" | ");
+            }
+
+            // Characteristics list
+            const charContainer = document.getElementById('characteristicsList');
+            charContainer.innerHTML = '';
+            if (data.characteristics && data.characteristics.length > 0) {
+                data.characteristics.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = 'd-flex align-items-start gap-2 text-dark';
+                    row.innerHTML = `<span class="text-success fw-bold">✓</span><span>${item}</span>`;
+                    charContainer.appendChild(row);
+                });
+            } else {
+                charContainer.innerHTML = '<span class="text-muted">Đang phân tích các đặc trưng hình học...</span>';
+            }
+
+            // Formulas
+            document.getElementById('formulaP').textContent = data.formulaPerimeter || "P = --";
+            document.getElementById('formulaS').textContent = data.formulaArea || "S = --";
+
+            // Suggested Lesson Link
+            if (data.suggestedLessonTitle) {
+                document.getElementById('suggestedLessonTitle').textContent = data.suggestedLessonTitle;
+            }
+            const btnGo = document.getElementById('btnGoToLesson');
+            if (data.suggestedLessonId) {
+                btnGo.href = `/Lesson/Detail/${data.suggestedLessonId}`;
+            } else {
+                btnGo.href = '/Curriculum';
+            }
+        }
+    </script>
+}
