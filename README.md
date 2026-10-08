@@ -64,36 +64,19 @@ Hệ thống đã được thiết lập sẵn tài khoản mẫu thông qua cơ
    cd You-Learn-Geometry
    ```
 
-2. **Cấu hình kết nối cơ sở dữ liệu (Tùy chọn):**
-   Thông tin kết nối MongoDB và Neo4j đã được cấu hình sẵn trong file `appsettings.json`:
-   ```json
-   {
-     "MongoDb": {
-       "ConnectionString": "mongodb+srv://nguyenkimlong261105_db_user:123123ad@cluster0.jw3w09j.mongodb.net/?retryWrites=true&w=majority",
-       "DatabaseName": "YouLearnGeometryDb"
-     },
-     "Neo4j": {
-       "Uri": "neo4j+s://0044ed45.databases.neo4j.io",
-       "Username": "0044ed45",
-       "Password": "rwzsKqkrJGZxY_Ct-Um09WHw3ddFX6ZAgXSTYGXQzMY",
-       "Database": "0044ed45"
-     }
-   }
-   ```
-
-3. **Restore Packages và Biên dịch dự án:**
+2. **Restore Packages và Biên dịch dự án:**
    ```bash
    dotnet restore
    dotnet build
    ```
 
-4. **Khởi chạy ứng dụng:**
+3. **Khởi chạy ứng dụng:**
    ```bash
    dotnet run
    ```
    *Khi khởi chạy lần đầu, hệ thống sẽ tự động gọi `IDataSeeder` để nạp danh mục bài học chuẩn, tài khoản người dùng và xây dựng cấu trúc đồ thị trên Neo4j.*
 
-5. **Truy cập ứng dụng:**
+4. **Truy cập ứng dụng:**
    Mở trình duyệt web và điều hướng tới:
    ```text
    http://localhost:5161
