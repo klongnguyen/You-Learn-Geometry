@@ -25,10 +25,8 @@ public class AssessmentController : Controller
         var user = await _mongo.Users.Find(u => u.Id == userId).FirstOrDefaultAsync();
         if (user == null) return RedirectToAction("Login", "Account");
 
-        string currentGrade = user.GradeLevel ?? "Lop6";
-
         var curriculum = await _mongo.CurriculumLevels
-            .Find(c => c.GradeLevel == currentGrade)
+            .Find(c => c.Topics.Any(t => t.TopicCode == topicCode))
             .FirstOrDefaultAsync();
 
         var topic = curriculum?.Topics.FirstOrDefault(t => t.TopicCode == topicCode);
@@ -36,7 +34,7 @@ public class AssessmentController : Controller
 
         // Kiểm tra điều kiện mở: Toàn bộ bài học trong chủ đề phải là AwaitingTest hoặc Completed
         var lessons = await _mongo.Lessons
-            .Find(l => l.TopicCode == topicCode && l.GradeLevel == currentGrade)
+            .Find(l => l.TopicCode == topicCode)
             .ToListAsync();
 
         var progressList = await _mongo.LearningProgress
@@ -68,10 +66,8 @@ public class AssessmentController : Controller
         var user = await _mongo.Users.Find(u => u.Id == userId).FirstOrDefaultAsync();
         if (user == null) return RedirectToAction("Login", "Account");
 
-        string currentGrade = user.GradeLevel ?? "Lop6";
-
         var curriculum = await _mongo.CurriculumLevels
-            .Find(c => c.GradeLevel == currentGrade)
+            .Find(c => c.Topics.Any(t => t.TopicCode == topicCode))
             .FirstOrDefaultAsync();
 
         var topic = curriculum?.Topics.FirstOrDefault(t => t.TopicCode == topicCode);

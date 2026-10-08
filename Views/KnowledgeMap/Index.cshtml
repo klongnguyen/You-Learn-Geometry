@@ -11,9 +11,11 @@
     </div>
     <div class="d-flex gap-2">
         <select id="gradeFilterSelect" class="form-select form-select-sm w-auto">
-            <option value="">Tất cả cấp độ</option>
-            <option value="6">Lớp 6 (Hình trực quan)</option>
-            <option value="8">Lớp 8 (Tứ giác đầy đủ)</option>
+            <option value="">Tất cả cấp độ (Lớp 6 - 9)</option>
+            <option value="6">Lớp 6 (Hình học trực quan)</option>
+            <option value="7">Lớp 7 (Tam giác & Góc)</option>
+            <option value="8">Lớp 8 (Tứ giác & Định lý)</option>
+            <option value="9">Lớp 9 (Đường tròn & Lượng giác)</option>
         </select>
         <button id="btnFitGraph" class="btn btn-sm btn-outline-secondary">
             <i class="bi bi-arrows-fullscreen"></i> Căn giữa
@@ -25,14 +27,35 @@
     <div class="col-lg-8">
         <div class="ylg-card p-3 position-relative">
             <!-- Cytoscape Container -->
-            <div id="cy-container"></div>
+            <div id="cy-container" style="height: 620px; width: 100%;"></div>
 
             <!-- Legend Overlay -->
-            <div class="position-absolute bottom-0 start-0 m-4 p-2 bg-white bg-opacity-90 rounded border shadow-sm small">
-                <span class="d-block fw-bold text-dark mb-1">Ghi chú quan hệ:</span>
+            <div class="position-absolute bottom-0 start-0 m-4 p-3 bg-white bg-opacity-95 rounded-3 border shadow-sm small" style="backdrop-filter: blur(4px);">
+                <span class="d-block fw-bold text-dark mb-2">Phân loại hình học:</span>
                 <div class="d-flex align-items-center gap-2 mb-1">
-                    <span style="display:inline-block; width:20px; height:3px; background:#4f46e5;"></span>
-                    <small>IS_SPECIAL_CASE_OF (Trường hợp đặc biệt)</small>
+                    <span style="display:inline-block; width:12px; height:12px; background:#4338ca; border-radius:3px;"></span>
+                    <span>Gốc Hình học phẳng</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span style="display:inline-block; width:12px; height:12px; background:#059669; border-radius:3px;"></span>
+                    <span>Họ Tam giác</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span style="display:inline-block; width:12px; height:12px; background:#2563eb; border-radius:3px;"></span>
+                    <span>Họ Tứ giác</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span style="display:inline-block; width:12px; height:12px; background:#e11d48; border-radius:3px;"></span>
+                    <span>Họ Đường tròn</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span style="display:inline-block; width:12px; height:12px; background:#7c3aed; border-radius:3px;"></span>
+                    <span>Đa giác đều</span>
+                </div>
+                <hr class="my-1 text-muted" />
+                <div class="d-flex align-items-center gap-2">
+                    <span style="display:inline-block; width:18px; height:2px; background:#4f46e5;"></span>
+                    <span class="text-muted" style="font-size: 11px;">Mũi tên: Kế thừa / Chuyển hóa</span>
                 </div>
             </div>
         </div>
@@ -99,48 +122,55 @@
                         style: {
                             'background-color': 'data(color)',
                             'label': 'data(label)',
-                            'color': '#1e293b',
+                            'color': '#0f172a',
                             'font-family': 'Plus Jakarta Sans, sans-serif',
-                            'font-weight': 'bold',
-                            'font-size': '13px',
+                            'font-weight': '600',
+                            'font-size': '12px',
                             'text-valign': 'bottom',
                             'text-margin-y': '6px',
-                            'width': '52px',
-                            'height': '52px',
+                            'width': '46px',
+                            'height': '46px',
                             'border-width': '3px',
                             'border-color': '#ffffff',
-                            'shadow-blur': '12px',
-                            'shadow-color': 'rgba(0,0,0,0.15)',
+                            'shadow-blur': '10px',
+                            'shadow-color': 'rgba(0,0,0,0.12)',
                             'shadow-opacity': 0.8
                         }
                     },
                     {
                         selector: 'node:selected',
                         style: {
-                            'border-color': '#ec4899',
+                            'border-color': '#f59e0b',
                             'border-width': '4px',
-                            'width': '60px',
-                            'height': '60px'
+                            'width': '56px',
+                            'height': '56px'
                         }
                     },
                     {
                         selector: 'edge',
                         style: {
-                            'width': 2.5,
-                            'line-color': '#4f46e5',
-                            'target-arrow-color': '#4f46e5',
+                            'width': 2,
+                            'line-color': '#6366f1',
+                            'target-arrow-color': '#6366f1',
                             'target-arrow-shape': 'triangle',
                             'curve-style': 'bezier',
-                            'arrow-scale': 1.2,
-                            'opacity': 0.85
+                            'arrow-scale': 1.1,
+                            'opacity': 0.85,
+                            'label': 'data(label)',
+                            'font-size': '10px',
+                            'text-rotation': 'autorotate',
+                            'text-background-opacity': 0.85,
+                            'text-background-color': '#ffffff',
+                            'text-background-padding': '2px',
+                            'color': '#475569'
                         }
                     }
                 ],
                 layout: {
                     name: 'breadthfirst',
                     directed: true,
-                    roots: '#HinhTuGiac, #HinhTamGiac, #HinhTron',
-                    padding: 40,
+                    roots: '#HinhHocPhang, #HinhTuGiac, #HinhTamGiac, #HinhTron',
+                    padding: 30,
                     spacingFactor: 1.25
                 }
             });
@@ -152,7 +182,7 @@
             });
 
             document.getElementById('btnFitGraph').addEventListener('click', () => {
-                cy.fit(null, 40);
+                cy.fit(null, 30);
             });
         }
 

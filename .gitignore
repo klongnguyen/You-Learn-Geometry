@@ -108,3 +108,5 @@ obj/
 *.suo
 *.userprefs
 
+# Textbooks (Large PDFs)
+ToanTHCS/

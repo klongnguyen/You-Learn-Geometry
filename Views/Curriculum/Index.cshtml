@@ -3,13 +3,32 @@
     ViewData["Title"] = "Chương trình & Chủ đề học tập";
 }
 
-<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-3">
     <div>
         <h2 class="fw-bold mb-1 text-dark">
             <i class="bi bi-book-half text-primary me-2"></i> @Model.GradeTitle
         </h2>
         <p class="text-muted mb-0">Học sinh được tự do truy cập các bài theo nhu cầu; hệ thống khuyến nghị học theo thứ tự.</p>
     </div>
+</div>
+
+<div class="d-flex flex-wrap gap-2 mb-4">
+    <a asp-controller="Curriculum" asp-action="Index" asp-route-grade="Lop6" 
+       class="btn btn-sm @(Model.GradeLevel == "Lop6" ? "btn-primary shadow-sm" : "btn-outline-secondary") rounded-pill px-3 py-2 fw-semibold">
+        <i class="bi bi-mortarboard me-1"></i> Lớp 6: Hình học trực quan
+    </a>
+    <a asp-controller="Curriculum" asp-action="Index" asp-route-grade="Lop7" 
+       class="btn btn-sm @(Model.GradeLevel == "Lop7" ? "btn-primary shadow-sm" : "btn-outline-secondary") rounded-pill px-3 py-2 fw-semibold">
+        <i class="bi bi-mortarboard me-1"></i> Lớp 7: Góc & Tam giác
+    </a>
+    <a asp-controller="Curriculum" asp-action="Index" asp-route-grade="Lop8" 
+       class="btn btn-sm @(Model.GradeLevel == "Lop8" ? "btn-primary shadow-sm" : "btn-outline-secondary") rounded-pill px-3 py-2 fw-semibold">
+        <i class="bi bi-mortarboard me-1"></i> Lớp 8: Tứ giác & Định lí
+    </a>
+    <a asp-controller="Curriculum" asp-action="Index" asp-route-grade="Lop9" 
+       class="btn btn-sm @(Model.GradeLevel == "Lop9" ? "btn-primary shadow-sm" : "btn-outline-secondary") rounded-pill px-3 py-2 fw-semibold">
+        <i class="bi bi-mortarboard me-1"></i> Lớp 9: Đường tròn & Lượng giác
+    </a>
 </div>
 
 @foreach (var topicItem in Model.Topics)

@@ -18,13 +18,13 @@ public class CurriculumController : Controller
         _mongo = mongo;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? grade = null)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var user = await _mongo.Users.Find(u => u.Id == userId).FirstOrDefaultAsync();
         if (user == null) return RedirectToAction("Login", "Account");
 
-        string currentGrade = user.GradeLevel ?? "Lop6";
+        string currentGrade = !string.IsNullOrEmpty(grade) ? grade : (user.GradeLevel ?? "Lop6");
 
         var curriculum = await _mongo.CurriculumLevels
             .Find(c => c.GradeLevel == currentGrade)
@@ -83,7 +83,14 @@ public class CurriculumController : Controller
         var vm = new CurriculumViewModel
         {
             GradeLevel = currentGrade,
-            GradeTitle = currentGrade == "Lop6" ? "Hình học phẳng Lớp 6" : "Hình học phẳng Lớp 8",
+            GradeTitle = currentGrade switch
+            {
+                "Lop6" => "Hình học phẳng Lớp 6 - Kết nối tri thức",
+                "Lop7" => "Hình học phẳng Lớp 7 - Kết nối tri thức",
+                "Lop8" => "Hình học phẳng Lớp 8 - Kết nối tri thức",
+                "Lop9" => "Hình học phẳng Lớp 9 - Kết nối tri thức",
+                _ => "Chương trình Hình học phẳng THCS"
+            },
             Topics = topicViewModels,
             IsTopicTestUnlocked = isTopicTestUnlocked,
             LatestTopicTestAttempt = latestTopicAttempt
