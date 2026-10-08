@@ -18,7 +18,7 @@ public class CurriculumController : Controller
         _mongo = mongo;
     }
 
-    public async Task<IActionResult> Index(string? grade = null)
+    public async Task<IActionResult> Index(string? grade = null, string? topic = null)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var user = await _mongo.Users.Find(u => u.Id == userId).FirstOrDefaultAsync();
@@ -40,21 +40,27 @@ public class CurriculumController : Controller
             .ToListAsync();
         var progressDict = progressList.ToDictionary(p => p.LessonId, p => p);
 
+        // Get all topic test attempts for this user
+        var topicAttempts = await _mongo.AssessmentAttempts
+            .Find(a => a.UserId == userId && a.AssessmentType == "TopicTest")
+            .SortByDescending(a => a.AttemptedAt)
+            .ToListAsync();
+
         var topicViewModels = new List<TopicItemViewModel>();
-        bool isTopicTestUnlocked = true;
+        bool isOverallTopicTestUnlocked = true;
 
         if (curriculum != null && curriculum.Topics != null)
         {
-            foreach (var topic in curriculum.Topics)
+            foreach (var t in curriculum.Topics.OrderBy(t => t.Order))
             {
-                var topicLessons = lessons.Where(l => l.TopicCode == topic.TopicCode).ToList();
+                var topicLessons = lessons.Where(l => l.TopicCode == t.TopicCode).ToList();
                 var lessonProgressItems = topicLessons.Select(l =>
                 {
                     progressDict.TryGetValue(l.Id, out var prog);
                     return new LessonProgressItem { Lesson = l, Progress = prog };
                 }).ToList();
 
-                // Check unlock condition: All lessons in topic must be AwaitingTest or Completed
+                // Unlock condition: All lessons in topic must be AwaitingTest or Completed
                 bool topicUnlocked = topicLessons.Any() && topicLessons.All(l =>
                 {
                     progressDict.TryGetValue(l.Id, out var prog);
@@ -63,37 +69,47 @@ public class CurriculumController : Controller
 
                 if (!topicUnlocked)
                 {
-                    isTopicTestUnlocked = false;
+                    isOverallTopicTestUnlocked = false;
                 }
+
+                var latestAttempt = topicAttempts.FirstOrDefault(a => a.TargetCode == t.TopicCode);
+
+                bool isTopicCompleted = topicLessons.Any() && topicLessons.All(l =>
+                {
+                    progressDict.TryGetValue(l.Id, out var prog);
+                    return prog != null && prog.Status == "Completed";
+                }) && (latestAttempt == null || latestAttempt.IsPassed);
 
                 topicViewModels.Add(new TopicItemViewModel
                 {
-                    Topic = topic,
-                    Lessons = lessonProgressItems
+                    Topic = t,
+                    Lessons = lessonProgressItems,
+                    IsTopicTestUnlocked = topicUnlocked,
+                    LatestTopicTestAttempt = latestAttempt,
+                    IsCompleted = isTopicCompleted
                 });
             }
         }
 
-        // Get latest topic test attempt
-        var latestTopicAttempt = await _mongo.AssessmentAttempts
-            .Find(a => a.UserId == userId && a.AssessmentType == "TopicTest")
-            .SortByDescending(a => a.AttemptedAt)
-            .FirstOrDefaultAsync();
+        string activeTopicCode = !string.IsNullOrEmpty(topic) && topicViewModels.Any(tv => tv.Topic.TopicCode == topic)
+            ? topic
+            : (topicViewModels.FirstOrDefault()?.Topic.TopicCode ?? string.Empty);
 
         var vm = new CurriculumViewModel
         {
             GradeLevel = currentGrade,
             GradeTitle = currentGrade switch
             {
-                "Lop6" => "Hình học phẳng Lớp 6 - Kết nối tri thức",
-                "Lop7" => "Hình học phẳng Lớp 7 - Kết nối tri thức",
-                "Lop8" => "Hình học phẳng Lớp 8 - Kết nối tri thức",
-                "Lop9" => "Hình học phẳng Lớp 9 - Kết nối tri thức",
+                "Lop6" => "Hình học phẳng Lớp 6",
+                "Lop7" => "Hình học phẳng Lớp 7",
+                "Lop8" => "Hình học phẳng Lớp 8",
+                "Lop9" => "Hình học phẳng Lớp 9",
                 _ => "Chương trình Hình học phẳng THCS"
             },
             Topics = topicViewModels,
-            IsTopicTestUnlocked = isTopicTestUnlocked,
-            LatestTopicTestAttempt = latestTopicAttempt
+            ActiveTopicCode = activeTopicCode,
+            IsTopicTestUnlocked = isOverallTopicTestUnlocked,
+            LatestTopicTestAttempt = topicAttempts.FirstOrDefault()
         };
 
         return View(vm);

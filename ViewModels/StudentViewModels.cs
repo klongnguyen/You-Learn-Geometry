@@ -41,6 +41,7 @@ public class CurriculumViewModel
 {
     public string GradeLevel { get; set; } = "Lop6";
     public string GradeTitle { get; set; } = "Hình học Lớp 6";
+    public string ActiveTopicCode { get; set; } = string.Empty;
     public List<TopicItemViewModel> Topics { get; set; } = new();
     public bool IsTopicTestUnlocked { get; set; }
     public AssessmentAttempt? LatestTopicTestAttempt { get; set; }
@@ -50,6 +51,11 @@ public class TopicItemViewModel
 {
     public Topic Topic { get; set; } = new();
     public List<LessonProgressItem> Lessons { get; set; } = new();
+    public bool IsTopicTestUnlocked { get; set; }
+    public AssessmentAttempt? LatestTopicTestAttempt { get; set; }
+    public bool IsCompleted { get; set; }
+    public int CompletedLessonsCount => Lessons.Count(l => l.Progress?.Status == "Completed");
+    public int TotalLessonsCount => Lessons.Count;
 }
 
 public class LessonDetailViewModel
