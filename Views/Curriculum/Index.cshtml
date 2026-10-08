@@ -95,17 +95,14 @@
             <!-- Sidebar Footer Quick Links -->
             <div class="p-3 border-top flex-shrink-0 bg-white small">
                 <div class="d-flex flex-column gap-2">
-                    <a asp-controller="KnowledgeMap" asp-action="Index" class="text-decoration-none text-muted d-flex align-items-center gap-2">
-                        <span>🗺️</span>
-                        <span class="fw-medium">Bản đồ tri thức</span>
+                    <a asp-controller="KnowledgeMap" asp-action="Index" class="text-decoration-none text-muted fw-medium py-1">
+                        Bản đồ tri thức hình học
                     </a>
-                    <a asp-controller="GeometryLab" asp-action="Index" class="text-decoration-none text-muted d-flex align-items-center gap-2">
-                        <span>🧪</span>
-                        <span class="fw-medium">Geometry Lab</span>
+                    <a asp-controller="GeometryLab" asp-action="Index" class="text-decoration-none text-muted fw-medium py-1">
+                        Geometry Lab
                     </a>
-                    <a asp-controller="PropertyBuilder" asp-action="Index" class="text-decoration-none text-muted d-flex align-items-center gap-2">
-                        <span>🧩</span>
-                        <span class="fw-medium">Property Builder</span>
+                    <a asp-controller="PropertyBuilder" asp-action="Index" class="text-decoration-none text-muted fw-medium py-1">
+                        Property Builder
                     </a>
                 </div>
             </div>
@@ -137,12 +134,12 @@
                         </div>
 
                         <!-- Progress Bar & Summary Stats -->
-                        <div class="d-flex align-items-center gap-3 small text-muted">
-                            <div>📖 @tItem.TotalLessonsCount bài học</div>
-                            <div>•</div>
-                            <div>🧪 1 bài kiểm tra chủ đề</div>
-                            <div>•</div>
-                            <div>Tiến độ: <strong>@tItem.CompletedLessonsCount/@tItem.TotalLessonsCount bài (@percent%)</strong></div>
+                        <div class="d-flex align-items-center gap-2 small text-muted">
+                            <span>@tItem.TotalLessonsCount bài học</span>
+                            <span>•</span>
+                            <span>1 bài kiểm tra chủ đề</span>
+                            <span>•</span>
+                            <span>Tiến độ: <strong>@tItem.CompletedLessonsCount/@tItem.TotalLessonsCount bài (@percent%)</strong></span>
                         </div>
                         <div class="progress mt-2" style="height: 6px;">
                             <div class="progress-bar bg-primary" role="progressbar" style="width: @percent%;" aria-valuenow="@percent" aria-valuemin="0" aria-valuemax="100"></div>
@@ -176,25 +173,19 @@
 
                                     <!-- Content Info -->
                                     <div>
-                                        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-                                            <h6 class="fw-bold text-dark mb-0 fs-6">@item.Lesson.Title</h6>
-                                            <span class="badge @item.StatusBadgeClass badge-status" style="font-size: 0.72rem;">
-                                                @item.StatusText
-                                            </span>
-                                        </div>
+                                        <h6 class="fw-bold text-dark mb-1 fs-6">@item.Lesson.Title</h6>
                                         <p class="text-muted small mb-2" style="max-width: 680px; line-height: 1.5;">@item.Lesson.Summary</p>
-                                        <div class="d-flex align-items-center gap-2 text-muted small" style="font-size: 0.76rem;">
-                                            @if (item.Lesson.HasGeometryLab)
-                                            {
-                                                <span class="badge bg-light text-primary border">🧪 Lab tương tác</span>
-                                            }
+                                        <div class="d-flex align-items-center gap-2 text-muted small" style="font-size: 0.8rem;">
+                                            <span>@(item.Lesson.HasGeometryLab ? "Lab tương tác" : "Lý thuyết")</span>
                                             @if (item.Lesson.HasMiniTest)
                                             {
-                                                <span class="badge bg-light text-secondary border">📝 Mini Test (4 câu)</span>
+                                                <span>•</span>
+                                                <span>Mini Test (4 câu)</span>
                                             }
                                             @if (item.Progress?.BestMiniTestScore > 0)
                                             {
-                                                <span class="text-success fw-semibold">Mini Test: @item.Progress.BestMiniTestScore%</span>
+                                                <span>•</span>
+                                                <span class="text-success fw-semibold">Điểm: @item.Progress.BestMiniTestScore%</span>
                                             }
                                         </div>
                                     </div>
