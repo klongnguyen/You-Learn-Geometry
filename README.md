@@ -17,6 +17,7 @@
   - Danh sách bài học bố trí theo chiều dọc, trực quan hóa trạng thái bằng các biểu tượng tròn tối giản (`✓` Đã hoàn thành, `●` Đang học, `○` Chưa học).
 - **Phòng thí nghiệm hình học tương tác (Interactive Geometry Lab):** Tích hợp công cụ vẽ hình động GeoGebra giúp quan sát trực quan tính chất góc, cạnh, đường thẳng song song, đường tròn.
 - **Công cụ lắp ghép tính chất (Property Builder):** Luyện tư duy chứng minh logic qua việc ghép các điều kiện giả thiết để suy ra hình học mục tiêu.
+- **Hình học trong thực tiễn (Geometry Real World):** Nhận diện mô hình hình học từ ảnh vật thể thực tế (gạch bông, biển báo, cánh diều, bảng lớp, đồng hồ, cầu sắt...), hỗ trợ kéo thả đỉnh thủ công (Contour Edit) và phân loại hình học thời gian thực.
 - **Đánh giá kiến thức 2 tầng:**
   - *Mini Test (4 câu trắc nghiệm)* sau mỗi bài học: Đạt từ 75% trở lên để xác nhận hoàn thành bài.
   - *Topic Test (10 câu trắc nghiệm)* tổng hợp chủ đề: Đạt từ 70% trở lên để nhận dấu tích hoàn thành toàn bộ chủ đề.
@@ -164,6 +165,11 @@ Hệ thống số hóa đầy đủ chương trình hình học phẳng THCS g�
    - Nhấp vào từng node để mở bảng thông tin chi tiết: Định nghĩa, Dấu hiệu nhận biết, và Mẹo ghi nhớ tính chất kế thừa.
 5. **Công cụ lắp ghép tính chất (`/PropertyBuilder`):**
    - Chọn các điều kiện giả thiết và thuộc tính của hình học để quan sát kết luận suy diễn logic tương ứng.
+6. **Hình học trong thực tiễn (Geometry Real World - `/RealWorld`):**
+   - Chọn vật thể thực tế mẫu trong thư viện hoặc tải ảnh bất kỳ từ máy tính lên.
+   - Kéo thả các đỉnh tròn trên Canvas để khớp chính xác với góc cạnh của vật thể trong ảnh (hỗ trợ chế độ Đa giác và Hình tròn).
+   - Hệ thống tự động đo góc, độ dài cạnh, chu vi, diện tích và suy luận phân loại hình học (Hình vuông, Hình chữ nhật, Hình thoi, Hình thang cân, Tam giác đều, Hình tròn...).
+   - Bấm nút **"Học bài này ngay →"** để chuyển thẳng tới bài giảng tương ứng trong chương trình.
 
 ### 6.2. Dành cho Quản trị viên (Admin)
 1. **Thống kê tổng quan (`/Admin`):**
@@ -191,7 +197,8 @@ YouLearnGeometry/
 │   ├── HomeController.cs           # Landing page giới thiệu
 │   ├── KnowledgeMapController.cs   # Bản đồ đồ thị tri thức Neo4j & Cytoscape
 │   ├── LessonController.cs         # Chi tiết bài học, lý thuyết và câu hỏi mini test
-│   └── PropertyBuilderController.cs# Công cụ xây dựng và suy luận tính chất hình học
+│   ├── PropertyBuilderController.cs# Công cụ xây dựng và suy luận tính chất hình học
+│   └── RealWorldController.cs      # Phân tích hình học thực tế, canvas tương tác & preset
 ├── Models/                      # Mô hình thực thể dữ liệu (MongoDB & Neo4j)
 │   ├── User.cs                     # Thực thể tài khoản người dùng
 │   ├── Lesson.cs                   # Thực thể bài học hình học
@@ -207,6 +214,10 @@ YouLearnGeometry/
 │   ├── DataSeeder.Lop8.cs          # Chi tiết dữ liệu 5 bài học Lớp 8
 │   └── DataSeeder.Lop9.cs          # Chi tiết dữ liệu 5 bài học Lớp 9
 ├── ViewModels/                  # ViewModels phục vụ hiển thị dữ liệu ra Views
+│   ├── AccountViewModels.cs
+│   ├── AdminViewModels.cs
+│   ├── RealWorldViewModels.cs      # DTO tọa độ điểm, mẫu thực tế và kết quả phân tích
+│   └── StudentViewModels.cs
 ├── Views/                       # Giao diện người dùng Razor Views
 │   ├── Account/                    # Trang đăng nhập, đăng ký
 │   ├── Admin/                      # Giao diện quản trị viên
