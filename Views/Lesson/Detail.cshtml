@@ -17,13 +17,28 @@
     };
 }
 
-<!-- Top Header & Sidebar Toggle -->
+<style>
+    #btnExpandSidebar {
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+    #btnExpandSidebar:hover {
+        transform: translateX(4px);
+        background-color: #eff6ff !important;
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25) !important;
+        color: #1d4ed8 !important;
+    }
+    #btnCollapseSidebar {
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    #btnCollapseSidebar:hover {
+        background-color: #e2e8f0 !important;
+        color: #0f172a !important;
+    }
+</style>
+
+<!-- Top Header / Breadcrumb -->
 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
     <div class="d-flex align-items-center gap-2">
-        <button id="btnToggleSidebar" type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" title="Ẩn/Hiện danh sách bài học">
-            <span id="sidebarToggleIcon">◀</span>
-            <span id="sidebarToggleText" class="d-none d-sm-inline">Thu gọn danh sách</span>
-        </button>
         <a asp-controller="Curriculum" asp-action="Index" class="btn btn-sm btn-light border text-muted">
             Lộ trình học tập
         </a>
@@ -38,16 +53,37 @@
     </div>
 </div>
 
+<!-- Floating dock tab to reopen sidebar when collapsed (stays fixed on screen) -->
+<button id="btnExpandSidebar" type="button"
+        class="btn bg-white text-primary border shadow-sm p-0 d-none align-items-center justify-content-center"
+        title="Hiện danh sách bài học"
+        aria-label="Hiện danh sách bài học"
+        style="position: fixed; left: 0; top: 130px; width: 36px; height: 48px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-left: none; z-index: 1045; cursor: pointer;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</button>
+
 <div class="row g-4" id="lessonContainerRow">
     <!-- LEFT SIDEBAR: Coursera-style Course Navigator -->
     <div class="col-lg-4 col-xl-3" id="courseSidebarCol">
-        <div class="ylg-card p-3 sticky-top" style="top: 85px; max-height: calc(100vh - 110px); overflow-y: auto;">
-            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-                <h6 class="fw-bold text-dark mb-0">@Model.GradeTitle</h6>
+        <div class="ylg-card p-3 sticky-top d-flex flex-column" style="top: 85px; max-height: calc(100vh - 110px);">
+            <!-- Sidebar Header with close icon button -->
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3 flex-shrink-0">
+                <h6 class="fw-bold text-dark mb-0 text-truncate me-2" title="@Model.GradeTitle">@Model.GradeTitle</h6>
+                <button id="btnCollapseSidebar" type="button"
+                        class="btn btn-sm btn-light border text-muted rounded-2 p-1 d-flex align-items-center justify-content-center flex-shrink-0"
+                        title="Thu gọn danh sách bài học"
+                        aria-label="Thu gọn danh sách bài học"
+                        style="width: 32px; height: 32px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
             </div>
 
             <!-- Module Accordion -->
-            <div class="d-flex flex-column gap-2" id="moduleAccordion">
+            <div class="d-flex flex-column gap-2 flex-grow-1 overflow-y-auto pe-1" id="moduleAccordion">
                 @for (int tIdx = 0; tIdx < Model.CourseTopics.Count; tIdx++)
                 {
                     var tItem = Model.CourseTopics[tIdx];
@@ -447,25 +483,36 @@
         <script src="~/js/geometry-lab.js" asp-append-version="true"></script>
     }
     <script>
-        // Coursera Sidebar Collapse Toggle
-        document.getElementById('btnToggleSidebar')?.addEventListener('click', function() {
-            const sidebar = document.getElementById('courseSidebarCol');
-            const content = document.getElementById('mainContentCol');
-            const icon = document.getElementById('sidebarToggleIcon');
-            const text = document.getElementById('sidebarToggleText');
+        // Coursera Sidebar Toggle (Clean Icon Button on Sidebar & Floating Dock Tab)
+        const sidebar = document.getElementById('courseSidebarCol');
+        const content = document.getElementById('mainContentCol');
+        const btnCollapse = document.getElementById('btnCollapseSidebar');
+        const btnExpand = document.getElementById('btnExpandSidebar');
 
-            if (sidebar.classList.contains('d-none')) {
-                sidebar.classList.remove('d-none');
-                content.className = 'col-lg-8 col-xl-9';
-                icon.innerText = '◀';
-                text.innerText = 'Thu gọn danh sách';
-            } else {
+        function setSidebarState(collapsed) {
+            if (!sidebar || !content || !btnExpand) return;
+            if (collapsed) {
                 sidebar.classList.add('d-none');
                 content.className = 'col-12';
-                icon.innerText = '▶';
-                text.innerText = 'Hiện danh sách bài học';
+                btnExpand.classList.remove('d-none');
+                btnExpand.classList.add('d-flex');
+                localStorage.setItem('ylg_course_sidebar_collapsed', 'true');
+            } else {
+                sidebar.classList.remove('d-none');
+                content.className = 'col-lg-8 col-xl-9';
+                btnExpand.classList.remove('d-flex');
+                btnExpand.classList.add('d-none');
+                localStorage.setItem('ylg_course_sidebar_collapsed', 'false');
             }
-        });
+        }
+
+        btnCollapse?.addEventListener('click', () => setSidebarState(true));
+        btnExpand?.addEventListener('click', () => setSidebarState(false));
+
+        // Restore user preference
+        if (localStorage.getItem('ylg_course_sidebar_collapsed') === 'true') {
+            setSidebarState(true);
+        }
 
         // Module chevron indicators update
         document.querySelectorAll('.module-header').forEach(header => {
