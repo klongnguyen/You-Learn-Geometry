@@ -119,7 +119,7 @@ public class LessonController : Controller
                 await AwardStreakAndBadgesAsync(userId!);
             }
 
-            TempData["SuccessMessage"] = "🎉 Tuyệt vời! Bạn đã hoàn thành xuất sắc bài học này.";
+            TempData["SuccessMessage"] = "Bạn đã hoàn thành bài học này.";
         }
         else
         {
@@ -143,7 +143,7 @@ public class LessonController : Controller
                 await _mongo.LearningProgress.UpdateOneAsync(p => p.Id == progress.Id, update);
             }
 
-            TempData["InfoMessage"] = "Bạn đã hoàn thành nội dung lý thuyết & thực hành. Hãy làm bài Mini Test bên dưới (đạt từ 75%) để được công nhận Hoàn thành bài học nhé!";
+            TempData["InfoMessage"] = "Bạn đã hoàn thành nội dung bài học. Hãy làm bài Mini Test bên dưới (đạt từ 75%) để hoàn tất bài học.";
         }
 
         return RedirectToAction("Detail", new { id });
@@ -165,7 +165,7 @@ public class LessonController : Controller
             return Json(new PracticeResultModel
             {
                 IsCorrect = true,
-                Message = "🎉 Chính xác! Bạn đã hiểu rất rõ kiến thức này.",
+                Message = "Chính xác! Bạn đã trả lời đúng.",
                 Explanation = exercise.Explanation
             });
         }

@@ -70,7 +70,7 @@ public class PropertyBuilderController : Controller
                 DeduceState = "Sufficient",
                 MatchedShapeName = "Hình vuông",
                 MatchedShapeCode = "HinhVuong",
-                Explanation = "🎉 Dữ kiện hoàn toàn ĐẦY ĐỦ để xác định hình vuông! Hình vuông kế thừa toàn bộ tính chất của Hình chữ nhật và Hình thoi."
+                Explanation = "Dữ kiện hoàn toàn đầy đủ để xác định hình vuông. Hình vuông kế thừa toàn bộ tính chất của Hình chữ nhật và Hình thoi."
             });
         }
 
@@ -84,7 +84,7 @@ public class PropertyBuilderController : Controller
                 DeduceState = "Sufficient",
                 MatchedShapeName = "Hình chữ nhật",
                 MatchedShapeCode = "HinhChuNhat",
-                Explanation = "🎉 Dữ kiện ĐẦY ĐỦ để xác định hình chữ nhật! Nếu thêm điều kiện 2 cạnh kề bằng nhau hoặc 2 đường chéo vuông góc, hình sẽ trở thành Hình vuông."
+                Explanation = "Dữ kiện đầy đủ để xác định hình chữ nhật. Nếu thêm điều kiện 2 cạnh kề bằng nhau hoặc 2 đường chéo vuông góc, hình sẽ trở thành Hình vuông."
             });
         }
 
@@ -98,7 +98,7 @@ public class PropertyBuilderController : Controller
                 DeduceState = "Sufficient",
                 MatchedShapeName = "Hình thoi",
                 MatchedShapeCode = "HinhThoi",
-                Explanation = "🎉 Dữ kiện ĐẦY ĐỦ để xác định hình thoi! Nếu có thêm 1 góc vuông hoặc 2 đường chéo bằng nhau, hình sẽ trở thành Hình vuông."
+                Explanation = "Dữ kiện đầy đủ để xác định hình thoi. Nếu có thêm 1 góc vuông hoặc 2 đường chéo bằng nhau, hình sẽ trở thành Hình vuông."
             });
         }
 
@@ -112,7 +112,7 @@ public class PropertyBuilderController : Controller
                 DeduceState = "Sufficient",
                 MatchedShapeName = "Hình thang cân",
                 MatchedShapeCode = "HinhThangCan",
-                Explanation = "🎉 Dữ kiện ĐẦY ĐỦ để xác định hình thang cân (hình thang có 2 góc kề một đáy bằng nhau hoặc 2 đường chéo bằng nhau)."
+                Explanation = "Dữ kiện đầy đủ để xác định hình thang cân (hình thang có 2 góc kề một đáy bằng nhau hoặc 2 đường chéo bằng nhau)."
             });
         }
 

@@ -23,39 +23,39 @@
         <div class="ylg-card p-4 mb-4">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
                 <a asp-controller="Curriculum" asp-action="Index" class="text-decoration-none small text-muted">
-                    <i class="bi bi-arrow-left"></i> Quay lại danh sách bài học
+                    Quay lại danh sách bài học
                 </a>
                 <span class="badge @statusClass badge-status">
-                    <i class="bi bi-bookmark-check me-1"></i> @statusText
+                    @statusText
                 </span>
             </div>
             <h2 class="fw-extrabold text-dark mb-2">@Model.Lesson.Title</h2>
             <p class="text-muted lead fs-6 mb-0">@Model.Lesson.Summary</p>
         </div>
 
-        <!-- Step 1: Khái niệm & Định nghĩa -->
+        <!-- Section 1: Khái niệm & Định nghĩa -->
         <div class="ylg-card p-4 mb-4">
             <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
-                <span class="badge bg-primary me-2">1</span> Khái niệm & Định nghĩa
+                Khái niệm & Định nghĩa
             </h5>
             <div class="p-3 bg-light rounded-3 border-start border-4 border-primary fs-6 text-dark lh-base">
                 @Model.Lesson.Definition
             </div>
         </div>
 
-        <!-- Step 2: Tính chất & Công thức -->
+        <!-- Section 2: Tính chất & Công thức -->
         <div class="ylg-card p-4 mb-4">
             <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
-                <span class="badge bg-primary me-2">2</span> Tính chất đặc trưng & Công thức
+                Tính chất & Công thức
             </h5>
             <div class="row g-3">
                 <div class="col-md-7">
-                    <h6 class="fw-bold text-dark mb-2"><i class="bi bi-check2-circle text-success me-1"></i> Các tính chất quan trọng:</h6>
+                    <h6 class="fw-bold text-dark mb-2">Các tính chất quan trọng:</h6>
                     <ul class="list-group list-group-flush">
                         @foreach (var prop in Model.Lesson.Properties)
                         {
                             <li class="list-group-item px-0 py-2 text-dark bg-transparent">
-                                <i class="bi bi-dot text-primary fs-4 align-middle"></i> @prop
+                                • @prop
                             </li>
                         }
                     </ul>
@@ -64,7 +64,7 @@
                     @if (Model.Lesson.Formulas.Any())
                     {
                         <div class="p-3 bg-primary bg-opacity-10 rounded-3 border border-primary-subtle h-100">
-                            <h6 class="fw-bold text-primary mb-2"><i class="bi bi-calculator me-1"></i> Công thức cần nhớ:</h6>
+                            <h6 class="fw-bold text-primary mb-2">Công thức cần nhớ:</h6>
                             @foreach (var f in Model.Lesson.Formulas)
                             {
                                 <div class="p-2 mb-2 bg-white rounded border fw-semibold text-dark small">
@@ -77,39 +77,39 @@
             </div>
         </div>
 
-        <!-- Step 3: Ví dụ trực quan & Thực tế -->
+        <!-- Section 3: Ví dụ minh họa & Thực tiễn -->
         <div class="ylg-card p-4 mb-4">
             <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
-                <span class="badge bg-primary me-2">3</span> Ví dụ minh họa & Liên hệ thực tiễn
+                Ví dụ minh họa & Liên hệ thực tiễn
             </h5>
             <div class="row g-3">
                 <div class="col-md-6">
                     <div class="p-3 bg-light rounded-3 h-100 border">
-                        <strong class="d-block text-dark mb-1"><i class="bi bi-lightbulb text-warning me-1"></i> Ví dụ toán học:</strong>
+                        <strong class="d-block text-dark mb-1">Ví dụ toán học:</strong>
                         <p class="text-muted small mb-0">@Model.Lesson.VisualExample</p>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="p-3 bg-light rounded-3 h-100 border">
-                        <strong class="d-block text-dark mb-1"><i class="bi bi-binoculars text-info me-1"></i> Ứng dụng trong đời sống:</strong>
+                        <strong class="d-block text-dark mb-1">Ứng dụng thực tiễn:</strong>
                         <p class="text-muted small mb-0">@Model.Lesson.RealWorldExample</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Step 4: Geometry Lab (Nếu có) -->
+        <!-- Section 4: Geometry Lab (Nếu có) -->
         @if (Model.Lesson.HasGeometryLab)
         {
             <div class="ylg-card p-4 mb-4" id="labSection">
                 <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
                     <h5 class="fw-bold text-dark mb-0">
-                        <span class="badge bg-primary me-2">4</span> Geometry Lab - Tương tác kéo đỉnh
+                        Geometry Lab
                     </h5>
                     <span class="badge bg-primary-subtle text-primary">Kéo 4 đỉnh A, B, C, D</span>
                 </div>
                 <p class="text-muted small mb-3">
-                    Bạn có thể dùng chuột hoặc chạm để kéo các đỉnh hình học. Hệ thống sẽ tự động tính toán cạnh, góc và nhận diện loại hình theo thời gian thực!
+                    Kéo các đỉnh để quan sát sự thay đổi góc và cạnh theo thời gian thực.
                 </p>
 
                 <div class="row g-3 align-items-center">
@@ -171,7 +171,7 @@
                             </div>
 
                             <button id="btnResetLab" class="btn btn-sm btn-outline-secondary w-100">
-                                <i class="bi bi-arrow-counterclockwise me-1"></i> Khôi phục hình gốc
+                                Khôi phục hình gốc
                             </button>
                         </div>
                     </div>
@@ -179,22 +179,22 @@
             </div>
         }
 
-        <!-- Step 5: Bài tập thực hành (Practice with 2-level Hint) -->
+        <!-- Section 5: Bài tập thực hành -->
         @if (Model.Lesson.PracticeExercises.Any())
         {
             <div class="ylg-card p-4 mb-4">
                 <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
-                    <span class="badge bg-primary me-2">5</span> Bài tập thực hành & Gợi ý thông minh (Hint)
+                    Bài tập thực hành
                 </h5>
                 <p class="text-muted small mb-3">
-                    Trả lời các bài tập sau. Nếu sai lần 2 hệ thống sẽ mở <strong>Gợi ý 1</strong>; sai lần 3 mở <strong>Gợi ý 2</strong> và cho phép xem giải thích.
+                    Trả lời các câu hỏi bên dưới để củng cố kiến thức bài học.
                 </p>
 
                 @for (int i = 0; i < Model.Lesson.PracticeExercises.Count; i++)
                 {
                     var ex = Model.Lesson.PracticeExercises[i];
                     <div class="practice-box" id="practiceBox_@ex.Id" data-attempt="0">
-                        <h6 class="fw-bold text-dark mb-2">Bài tập @(i + 1): @ex.QuestionText</h6>
+                        <h6 class="fw-bold text-dark mb-2">Câu @(i + 1): @ex.QuestionText</h6>
 
                         @if (ex.Type == "single_choice" && ex.Options.Any())
                         {
@@ -232,44 +232,37 @@
             </div>
         }
 
-        <!-- Step 6: NÚT ĐÁNH DẤU HOÀN THÀNH (QUY TẮC CỐT LÕI ĐÃ CHỐT) -->
+        <!-- Section 6: Xác nhận hoàn thành bài học -->
         <div class="ylg-card p-4 p-md-5 mb-4 text-center bg-light border-2 border-primary border-dashed">
             <h4 class="fw-bold text-dark mb-2">
-                <i class="bi bi-check2-circle text-primary me-2"></i> Xác nhận hoàn thành nội dung bài học
+                Xác nhận hoàn thành bài học
             </h4>
             <p class="text-muted small mb-4" style="max-width: 580px; margin: 0 auto;">
-                @if (Model.Lesson.HasMiniTest)
-                {
-                    <span>Bài học này có bài <strong>Mini Test</strong>. Khi nhấn nút bên dưới, bài học sẽ chuyển sang trạng thái <strong>Chờ kiểm tra</strong>. Đạt từ 75% Mini Test sẽ được công nhận <strong>Hoàn thành</strong>!</span>
-                }
-                else
-                {
-                    <span>Bài học này thuộc dạng <strong>Đọc & Thực hành</strong>. Khi nhấn nút bên dưới, bài học sẽ được chuyển thẳng sang trạng thái <strong>Hoàn thành</strong> và cộng chuỗi Streak!</span>
-                }
+                Nhấn nút bên dưới sau khi bạn đã đọc và hiểu các nội dung trong bài học.
             </p>
 
             <form asp-action="MarkCompleted" asp-route-id="@Model.Lesson.Id" method="post">
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn btn-ylg-success btn-lg px-5 py-3 fs-5 shadow">
-                    <i class="bi bi-check-all me-2"></i> Đánh dấu hoàn thành bài học
+                    Đánh dấu hoàn thành bài học
                 </button>
             </form>
 
             @if (Model.CurrentStatus == "Completed")
             {
                 <div class="text-success fw-bold mt-3">
-                    <i class="bi bi-patch-check-fill me-1"></i> Bạn đã hoàn thành bài học này!
+                    Bạn đã hoàn thành bài học này.
                 </div>
             }
         </div>
 
-        <!-- Step 7: Mini Test (Nếu có) -->
+        <!-- Section 7: Mini Test (Nếu có) -->
         @if (Model.Lesson.HasMiniTest && Model.Lesson.MiniTest.Any())
         {
             <div class="ylg-card p-4 mb-4" id="miniTestSection">
                 <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
                     <h5 class="fw-bold text-dark mb-0">
-                        <i class="bi bi-pencil-square text-warning me-2"></i> Mini Test (@Model.Lesson.MiniTest.Count câu)
+                        Mini Test (@Model.Lesson.MiniTest.Count câu)
                     </h5>
                     <div>
                         <span class="badge bg-warning text-dark">Ngưỡng đạt: 75%</span>
@@ -282,7 +275,7 @@
                     </div>
                 </div>
                 <p class="text-muted small mb-4">
-                    Học sinh có thể làm Mini Test bất cứ lúc nào sau khi đọc bài. Hệ thống lưu điểm cao nhất; làm lại nếu không đạt sẽ không làm mất trạng thái Hoàn thành đã có.
+                    Làm bài kiểm tra ngắn để tự đánh giá mức độ tiếp thu bài học. Ngưỡng đạt từ 75% trở lên.
                 </p>
 
                 <form asp-action="SubmitMiniTest" method="post">
@@ -309,7 +302,7 @@
 
                     <div class="text-end mt-4">
                         <button type="submit" class="btn btn-ylg-primary px-4 py-2">
-                            <i class="bi bi-send-check me-1"></i> Nộp bài Mini Test
+                            Nộp bài Mini Test
                         </button>
                     </div>
                 </form>
@@ -321,7 +314,7 @@
             @if (Model.PreviousLesson != null)
             {
                 <a asp-action="Detail" asp-route-id="@Model.PreviousLesson.Id" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-1"></i> @Model.PreviousLesson.Title
+                    Bài trước: @Model.PreviousLesson.Title
                 </a>
             }
             else
@@ -332,7 +325,7 @@
             @if (Model.NextLesson != null)
             {
                 <a asp-action="Detail" asp-route-id="@Model.NextLesson.Id" class="btn btn-ylg-primary">
-                    @Model.NextLesson.Title <i class="bi bi-arrow-right ms-1"></i>
+                    Bài tiếp: @Model.NextLesson.Title
                 </a>
             }
         </div>
@@ -343,20 +336,20 @@
         <div class="ylg-card p-3 sticky-top" style="top: 85px;">
             <h6 class="fw-bold text-dark mb-3">Mục lục bài học</h6>
             <div class="nav flex-column gap-2 small">
-                <a href="#" class="nav-link text-muted px-2 py-1"><i class="bi bi-hash"></i> 1. Khái niệm</a>
-                <a href="#" class="nav-link text-muted px-2 py-1"><i class="bi bi-hash"></i> 2. Tính chất & Công thức</a>
-                <a href="#" class="nav-link text-muted px-2 py-1"><i class="bi bi-hash"></i> 3. Ví dụ trực quan</a>
+                <a href="#" class="nav-link text-muted px-2 py-1">1. Khái niệm</a>
+                <a href="#" class="nav-link text-muted px-2 py-1">2. Tính chất & Công thức</a>
+                <a href="#" class="nav-link text-muted px-2 py-1">3. Ví dụ minh họa</a>
                 @if (Model.Lesson.HasGeometryLab)
                 {
-                    <a href="#labSection" class="nav-link text-muted px-2 py-1"><i class="bi bi-hash"></i> 4. Geometry Lab</a>
+                    <a href="#labSection" class="nav-link text-muted px-2 py-1">4. Geometry Lab</a>
                 }
                 @if (Model.Lesson.PracticeExercises.Any())
                 {
-                    <a href="#" class="nav-link text-muted px-2 py-1"><i class="bi bi-hash"></i> 5. Bài tập thực hành</a>
+                    <a href="#" class="nav-link text-muted px-2 py-1">5. Bài tập thực hành</a>
                 }
                 @if (Model.Lesson.HasMiniTest)
                 {
-                    <a href="#miniTestSection" class="nav-link text-muted px-2 py-1"><i class="bi bi-hash"></i> 6. Mini Test</a>
+                    <a href="#miniTestSection" class="nav-link text-muted px-2 py-1">6. Mini Test</a>
                 }
             </div>
 
@@ -364,7 +357,7 @@
             <div class="p-2 bg-light rounded text-center small text-muted">
                 Liên hệ tri thức: <br />
                 <a asp-controller="KnowledgeMap" asp-action="Index" class="fw-bold text-primary">
-                    Xem trên Knowledge Map <i class="bi bi-arrow-up-right"></i>
+                    Xem Bản đồ tri thức
                 </a>
             </div>
         </div>

@@ -58,7 +58,7 @@ function submitPractice(lessonId, exId, exType) {
         } else {
             if (hint && data.hint) {
                 hint.style.display = 'block';
-                hint.innerHTML = '<i class="bi bi-lightbulb-fill me-1"></i> ' + data.hint;
+                hint.innerHTML = '<strong>Gợi ý:</strong> ' + data.hint;
             }
             if (expl && data.allowViewAnswer && data.correctAnswerText) {
                 expl.style.display = 'block';

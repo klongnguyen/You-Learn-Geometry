@@ -17,11 +17,8 @@
                 </div>
             </div>
 
-            <div class="alert alert-info d-flex align-items-center mb-4 small" role="alert">
-                <i class="bi bi-info-circle-fill fs-5 me-2"></i>
-                <div>
-                    Bài kiểm tra không giới hạn thời gian. Đạt điểm từ <strong>80% trở lên</strong> sẽ giúp bạn mở khóa huy hiệu danh giá <strong>👑 Bậc thầy Tứ giác</strong>!
-                </div>
+            <div class="p-3 bg-light rounded-3 border mb-4 small text-muted">
+                Bài kiểm tra không giới hạn thời gian làm bài. Học sinh đạt từ 70% trở lên sẽ được công nhận hoàn thành chủ đề.
             </div>
 
             <form asp-action="SubmitTopicTest" method="post">
@@ -48,10 +45,10 @@
 
                 <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-4">
                     <a asp-controller="Curriculum" asp-action="Index" class="btn btn-outline-secondary">
-                        <i class="bi bi-x-circle me-1"></i> Rời bài làm
+                        Rời bài làm
                     </a>
                     <button type="submit" class="btn btn-ylg-primary px-5 py-2 fs-6">
-                        <i class="bi bi-send-check me-1"></i> Hoàn thành & Nộp bài
+                        Hoàn thành & Nộp bài
                     </button>
                 </div>
             </form>

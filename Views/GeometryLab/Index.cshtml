@@ -7,13 +7,13 @@
 <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-4">
     <div>
         <h2 class="fw-bold mb-1 text-dark">
-            <i class="bi bi-bounding-box text-primary me-2"></i> Geometry Lab
+            Geometry Lab
         </h2>
         <p class="text-muted mb-0">Thao tác trực tiếp với các đỉnh hình học để quan sát sự biến đổi tính chất theo thời gian thực.</p>
     </div>
     <div class="d-flex align-items-center gap-2">
         <button id="toggleChallengeBtn" class="btn btn-outline-warning fw-semibold px-3 @(challengeMode ? "active" : "")">
-            <i class="bi bi-trophy-fill me-1"></i> Challenge Mode
+            Chế độ thử thách
         </button>
     </div>
 </div>
@@ -22,7 +22,7 @@
 <div id="challengeBanner" class="alert alert-warning border-warning-subtle shadow-sm mb-4" style="display: @(challengeMode ? "block" : "none");">
     <div class="d-flex justify-content-between align-items-center">
         <div>
-            <strong class="d-block fs-6 text-dark" id="challengeTitle">🎯 Thử thách: Hãy biến đổi hình thành một Hình Thoi</strong>
+            <strong class="d-block fs-6 text-dark" id="challengeTitle">Thử thách: Biến đổi hình thành Hình thoi</strong>
             <small class="text-muted" id="challengeDesc">Kéo các đỉnh sao cho 4 cạnh có độ dài bằng nhau!</small>
         </div>
         <div id="challengeStatusBadge">
@@ -46,7 +46,7 @@
 
                 <div class="d-flex gap-2">
                     <button id="btnResetCanvas" class="btn btn-sm btn-light border">
-                        <i class="bi bi-arrow-counterclockwise"></i> Đặt lại
+                        Đặt lại
                     </button>
                 </div>
             </div>
@@ -92,7 +92,7 @@
             <h3 id="currentShapeName" class="fw-extrabold text-primary mb-3">Hình chữ nhật</h3>
 
             <div class="p-3 bg-light rounded-3 border mb-3">
-                <h6 class="fw-bold text-dark small mb-2"><i class="bi bi-rulers me-1"></i> Độ dài 4 cạnh (px):</h6>
+                <h6 class="fw-bold text-dark small mb-2">Độ dài 4 cạnh (px):</h6>
                 <div class="row g-2 text-center small">
                     <div class="col-6"><div class="p-2 bg-white rounded border">AB: <strong id="valAB">300</strong></div></div>
                     <div class="col-6"><div class="p-2 bg-white rounded border">BC: <strong id="valBC">280</strong></div></div>
@@ -102,7 +102,7 @@
             </div>
 
             <div class="p-3 bg-light rounded-3 border mb-3">
-                <h6 class="fw-bold text-dark small mb-2"><i class="bi bi-pie-chart me-1"></i> Góc tại 4 đỉnh:</h6>
+                <h6 class="fw-bold text-dark small mb-2">Góc tại 4 đỉnh:</h6>
                 <div class="row g-2 text-center small">
                     <div class="col-6"><div class="p-2 bg-white rounded border">Â: <strong id="valAngA">90°</strong></div></div>
                     <div class="col-6"><div class="p-2 bg-white rounded border">B̂: <strong id="valAngB">90°</strong></div></div>
@@ -112,7 +112,7 @@
             </div>
 
             <div class="p-3 bg-light rounded-3 border">
-                <h6 class="fw-bold text-dark small mb-2"><i class="bi bi-slash-lg me-1"></i> Hai đường chéo:</h6>
+                <h6 class="fw-bold text-dark small mb-2">Hai đường chéo:</h6>
                 <div class="d-flex justify-content-between small">
                     <span>AC: <strong id="valAC">410</strong></span>
                     <span>BD: <strong id="valBD">410</strong></span>

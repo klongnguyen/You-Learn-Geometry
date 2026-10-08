@@ -9,19 +9,13 @@
             <div class="mb-4">
                 @if (Model.IsPassed)
                 {
-                    <div class="rounded-circle bg-success-subtle text-success d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                        <i class="bi bi-trophy-fill fs-1"></i>
-                    </div>
-                    <h3 class="fw-extrabold text-success mb-1">Chúc mừng bạn đã ĐẠT! 🎉</h3>
+                    <h3 class="fw-extrabold text-success mb-1">Kết quả: Đạt yêu cầu</h3>
                     <p class="text-muted small">Bạn đã vượt qua ngưỡng yêu cầu (@Model.Threshold%).</p>
                 }
                 else
                 {
-                    <div class="rounded-circle bg-danger-subtle text-danger d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                        <i class="bi bi-arrow-repeat fs-1"></i>
-                    </div>
-                    <h3 class="fw-extrabold text-danger mb-1">Chưa đạt yêu cầu!</h3>
-                    <p class="text-muted small">Cần đạt từ @Model.Threshold% trở lên. Đừng nản lòng, bạn có thể ôn tập và làm lại bất cứ lúc nào!</p>
+                    <h3 class="fw-extrabold text-danger mb-1">Kết quả: Chưa đạt yêu cầu</h3>
+                    <p class="text-muted small">Cần đạt từ @Model.Threshold% trở lên. Bạn có thể ôn tập lại lý thuyết và làm lại bất cứ lúc nào.</p>
                 }
             </div>
 
@@ -40,16 +34,16 @@
             {
                 <div class="p-3 bg-warning bg-opacity-10 border border-warning-subtle rounded-3 mb-4 text-start">
                     <strong class="text-dark d-block mb-2">
-                        <i class="bi bi-stars text-warning me-1"></i> Mở khóa huy hiệu mới:
+                        Mở khóa huy hiệu mới:
                     </strong>
                     <div class="d-flex flex-wrap gap-2">
                         @foreach (var badge in Model.NewBadgesEarned)
                         {
                             var badgeName = badge switch
                             {
-                                "khoi_dau" => "🌱 Khởi đầu nan (Hoàn thành bài học đầu tiên)",
-                                "ben_bi" => "🔥 Chiến binh bền bỉ (Streak 3 ngày)",
-                                "bac_thay_tu_giac" => "👑 Bậc thầy Tứ giác (Test ≥ 80%)",
+                                "khoi_dau" => "Khởi đầu nan (Hoàn thành bài đầu tiên)",
+                                "ben_bi" => "Chiến binh bền bỉ (Streak 3 ngày)",
+                                "bac_thay_tu_giac" => "Bậc thầy Tứ giác (Test ≥ 80%)",
                                 _ => badge
                             };
                             <span class="badge bg-warning text-dark px-3 py-2 fs-6 rounded-pill">
@@ -62,7 +56,7 @@
 
             <div class="d-flex justify-content-center gap-3">
                 <a href="@Model.BackUrl" class="btn btn-ylg-primary px-4 py-2">
-                    <i class="bi bi-arrow-left me-1"></i> Tiếp tục học tập
+                    Tiếp tục học tập
                 </a>
                 <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary px-4 py-2">
                     Về Dashboard

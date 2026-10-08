@@ -3,31 +3,26 @@
     ViewData["Title"] = "Chương trình & Chủ đề học tập";
 }
 
-<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-3">
-    <div>
-        <h2 class="fw-bold mb-1 text-dark">
-            <i class="bi bi-book-half text-primary me-2"></i> @Model.GradeTitle
-        </h2>
-        <p class="text-muted mb-0">Học sinh được tự do truy cập các bài theo nhu cầu; hệ thống khuyến nghị học theo thứ tự.</p>
-    </div>
+<div class="mb-3">
+    <h2 class="fw-bold mb-0 text-dark">@Model.GradeTitle</h2>
 </div>
 
 <div class="d-flex flex-wrap gap-2 mb-4">
     <a asp-controller="Curriculum" asp-action="Index" asp-route-grade="Lop6" 
-       class="btn btn-sm @(Model.GradeLevel == "Lop6" ? "btn-primary shadow-sm" : "btn-outline-secondary") rounded-pill px-3 py-2 fw-semibold">
-        <i class="bi bi-mortarboard me-1"></i> Lớp 6: Hình học trực quan
+       class="btn btn-sm @(Model.GradeLevel == "Lop6" ? "btn-primary shadow-sm" : "btn-outline-secondary") rounded-pill px-3 py-1 fw-semibold">
+        Lớp 6
     </a>
     <a asp-controller="Curriculum" asp-action="Index" asp-route-grade="Lop7" 
-       class="btn btn-sm @(Model.GradeLevel == "Lop7" ? "btn-primary shadow-sm" : "btn-outline-secondary") rounded-pill px-3 py-2 fw-semibold">
-        <i class="bi bi-mortarboard me-1"></i> Lớp 7: Góc & Tam giác
+       class="btn btn-sm @(Model.GradeLevel == "Lop7" ? "btn-primary shadow-sm" : "btn-outline-secondary") rounded-pill px-3 py-1 fw-semibold">
+        Lớp 7
     </a>
     <a asp-controller="Curriculum" asp-action="Index" asp-route-grade="Lop8" 
-       class="btn btn-sm @(Model.GradeLevel == "Lop8" ? "btn-primary shadow-sm" : "btn-outline-secondary") rounded-pill px-3 py-2 fw-semibold">
-        <i class="bi bi-mortarboard me-1"></i> Lớp 8: Tứ giác & Định lí
+       class="btn btn-sm @(Model.GradeLevel == "Lop8" ? "btn-primary shadow-sm" : "btn-outline-secondary") rounded-pill px-3 py-1 fw-semibold">
+        Lớp 8
     </a>
     <a asp-controller="Curriculum" asp-action="Index" asp-route-grade="Lop9" 
-       class="btn btn-sm @(Model.GradeLevel == "Lop9" ? "btn-primary shadow-sm" : "btn-outline-secondary") rounded-pill px-3 py-2 fw-semibold">
-        <i class="bi bi-mortarboard me-1"></i> Lớp 9: Đường tròn & Lượng giác
+       class="btn btn-sm @(Model.GradeLevel == "Lop9" ? "btn-primary shadow-sm" : "btn-outline-secondary") rounded-pill px-3 py-1 fw-semibold">
+        Lớp 9
     </a>
 </div>
 
@@ -40,8 +35,8 @@
                 <small class="text-muted">@topicItem.Topic.Description</small>
             </div>
             <div>
-                <span class="badge bg-primary px-3 py-2 rounded-pill">
-                    @topicItem.Lessons.Count Bài học
+                <span class="badge bg-primary px-3 py-1 rounded-pill">
+                    @topicItem.Lessons.Count bài học
                 </span>
             </div>
         </div>
@@ -65,15 +60,11 @@
                                 <small class="text-muted">
                                     @if (item.Lesson.HasGeometryLab)
                                     {
-                                        <span class="me-2 text-primary"><i class="bi bi-bounding-box"></i> Lab</span>
+                                        <span class="me-2 text-primary">Lab tương tác</span>
                                     }
                                     @if (item.Lesson.HasMiniTest)
                                     {
-                                        <span class="text-warning"><i class="bi bi-question-circle"></i> Mini Test</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-success"><i class="bi bi-check-circle"></i> Đọc & TH</span>
+                                        <span class="text-secondary">Mini Test</span>
                                     }
                                 </small>
                                 <a asp-controller="Lesson" asp-action="Detail" asp-route-id="@item.Lesson.Id" class="btn btn-sm btn-outline-primary px-3">
@@ -90,18 +81,17 @@
                 <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
                     <div>
                         <div class="d-flex align-items-center gap-2 mb-1">
-                            <span class="badge @(Model.IsTopicTestUnlocked ? "bg-primary" : "bg-secondary") rounded-pill">Topic Test (10 câu)</span>
-                            <span class="text-muted small">&bull; Không giới hạn thời gian &bull; Ngưỡng đạt 70%</span>
+                            <span class="badge @(Model.IsTopicTestUnlocked ? "bg-primary" : "bg-secondary") rounded-pill">Bài kiểm tra chủ đề (10 câu)</span>
                         </div>
-                        <h5 class="fw-bold text-dark mb-1">Bài kiểm tra tổng hợp: @topicItem.Topic.Title</h5>
+                        <h5 class="fw-bold text-dark mb-1">@topicItem.Topic.Title</h5>
                         <p class="text-muted small mb-0">
                             @if (Model.IsTopicTestUnlocked)
                             {
-                                <span>🎉 Đã mở khóa! Đạt từ 80% trở lên sẽ nhận ngay huy hiệu <strong>👑 Bậc thầy Tứ giác</strong>.</span>
+                                <span>Đã mở khóa. Đạt từ 70% trở lên để hoàn thành chủ đề.</span>
                             }
                             else
                             {
-                                <span>🔒 Bài kiểm tra sẽ mở khi bạn <strong>Đánh dấu hoàn thành</strong> toàn bộ các bài học trong chủ đề này.</span>
+                                <span>Hoàn thành tất cả các bài học trong chủ đề để mở khóa bài kiểm tra này.</span>
                             }
                         </p>
                     </div>
@@ -109,13 +99,13 @@
                         @if (Model.IsTopicTestUnlocked)
                         {
                             <a asp-controller="Assessment" asp-action="TopicTest" asp-route-topicCode="@topicItem.Topic.TopicCode" class="btn btn-ylg-primary px-4 py-2">
-                                <i class="bi bi-pencil-square me-1"></i> Làm bài kiểm tra
+                                Làm bài kiểm tra
                             </a>
                         }
                         else
                         {
                             <button class="btn btn-secondary px-4 py-2" disabled>
-                                <i class="bi bi-lock me-1"></i> Chưa mở khóa
+                                Chưa mở khóa
                             </button>
                         }
                     </div>

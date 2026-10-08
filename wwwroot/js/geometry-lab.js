@@ -139,7 +139,7 @@
                 const badge = document.getElementById('challengeStatusBadge');
                 if (badge) {
                     if (shapeName.includes(targetChallengeShape)) {
-                        badge.innerHTML = '<span class="badge bg-success px-3 py-2 fs-6">🎉 CHÍNH XÁC! THÀNH CÔNG!</span>';
+                        badge.innerHTML = '<span class="badge bg-success px-3 py-2 fs-6">Chính xác! Hoàn thành thử thách</span>';
                     } else {
                         badge.innerHTML = '<span class="badge bg-secondary px-3 py-2 fs-6">Đang thực hiện...</span>';
                     }
