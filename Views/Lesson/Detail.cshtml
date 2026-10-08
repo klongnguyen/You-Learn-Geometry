@@ -1,6 +1,7 @@
 @model YouLearnGeometry.ViewModels.LessonDetailViewModel
 @{
     ViewData["Title"] = Model.Lesson.Title;
+    ViewData["FluidLayout"] = true;
     var statusClass = Model.CurrentStatus switch
     {
         "Completed" => "bg-success text-white",
@@ -34,45 +35,31 @@
         background-color: #e2e8f0 !important;
         color: #0f172a !important;
     }
+    .module-header:hover {
+        background-color: #e2e8f0 !important;
+    }
 </style>
 
-<!-- Top Header / Breadcrumb -->
-<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-    <div class="d-flex align-items-center gap-2">
-        <a asp-controller="Curriculum" asp-action="Index" class="btn btn-sm btn-light border text-muted">
-            Lộ trình học tập
-        </a>
-        <span class="text-muted small">&rsaquo;</span>
-        <span class="text-dark small fw-semibold">@Model.GradeTitle</span>
-    </div>
-
-    <div>
-        <span class="badge @statusClass badge-status">
-            @statusText
-        </span>
-    </div>
-</div>
-
-<!-- Floating dock tab to reopen sidebar when collapsed (stays fixed on screen) -->
+<!-- Floating dock tab to reopen sidebar when collapsed (stays fixed on left edge) -->
 <button id="btnExpandSidebar" type="button"
         class="btn bg-white text-primary border shadow-sm p-0 d-none align-items-center justify-content-center"
         title="Hiện danh sách bài học"
         aria-label="Hiện danh sách bài học"
-        style="position: fixed; left: 0; top: 130px; width: 36px; height: 48px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-left: none; z-index: 1045; cursor: pointer;">
+        style="position: fixed; left: 0; top: 120px; width: 36px; height: 48px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-left: none; z-index: 1045; cursor: pointer;">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="9 18 15 12 9 6"></polyline>
     </svg>
 </button>
 
-<div class="row g-4" id="lessonContainerRow">
-    <!-- LEFT SIDEBAR: Coursera-style Course Navigator -->
-    <div class="col-lg-4 col-xl-3" id="courseSidebarCol">
-        <div class="ylg-card p-3 sticky-top d-flex flex-column" style="top: 85px; max-height: calc(100vh - 110px);">
+<div class="d-flex w-100 position-relative" id="lessonContainerWrapper" style="min-height: calc(100vh - 120px);">
+    <!-- LEFT SIDEBAR: Sát lề bên trái, không kẻ khung, chuẩn Coursera -->
+    <aside id="courseSidebarCol" class="bg-white border-end flex-shrink-0" style="width: 320px; min-width: 320px; max-width: 340px;">
+        <div class="sticky-top d-flex flex-column" style="top: 65px; height: calc(100vh - 65px);">
             <!-- Sidebar Header with close icon button -->
-            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3 flex-shrink-0">
-                <h6 class="fw-bold text-dark mb-0 text-truncate me-2" title="@Model.GradeTitle">@Model.GradeTitle</h6>
+            <div class="px-3 py-3 border-bottom d-flex justify-content-between align-items-center flex-shrink-0 bg-white">
+                <span class="fw-bold text-dark text-truncate me-2 fs-6" title="@Model.GradeTitle">@Model.GradeTitle</span>
                 <button id="btnCollapseSidebar" type="button"
-                        class="btn btn-sm btn-light border text-muted rounded-2 p-1 d-flex align-items-center justify-content-center flex-shrink-0"
+                        class="btn btn-sm btn-light border-0 text-muted rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0"
                         title="Thu gọn danh sách bài học"
                         aria-label="Thu gọn danh sách bài học"
                         style="width: 32px; height: 32px;">
@@ -82,17 +69,17 @@
                 </button>
             </div>
 
-            <!-- Module Accordion -->
-            <div class="d-flex flex-column gap-2 flex-grow-1 overflow-y-auto pe-1" id="moduleAccordion">
+            <!-- Module Accordion: Flat, No Card Frame -->
+            <div class="flex-grow-1 overflow-y-auto" id="moduleAccordion">
                 @for (int tIdx = 0; tIdx < Model.CourseTopics.Count; tIdx++)
                 {
                     var tItem = Model.CourseTopics[tIdx];
                     bool isCurrentTopic = tItem.Lessons.Any(l => l.Lesson.Id == Model.Lesson.Id) || (tItem.Topic.TopicCode == Model.CurrentTopicCode);
                     string collapseId = $"collapse_topic_{tIdx}";
 
-                    <div class="border rounded-3 overflow-hidden bg-white">
+                    <div class="border-bottom">
                         <!-- Module Header with arrow toggle -->
-                        <div class="p-2 px-3 bg-light d-flex justify-content-between align-items-center module-header"
+                        <div class="p-3 bg-light-subtle d-flex justify-content-between align-items-center module-header"
                              data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="@(isCurrentTopic ? "true" : "false")"
                              style="cursor: pointer; user-select: none;">
                             <div class="small fw-bold text-dark text-truncate pe-2">
@@ -141,16 +128,34 @@
             </div>
 
             <!-- Knowledge Map Shortcut -->
-            <div class="pt-3 mt-3 border-top text-center small">
-                <a asp-controller="KnowledgeMap" asp-action="Index" class="text-decoration-none fw-semibold text-primary">
-                    Bản đồ tri thức hình học
+            <div class="p-3 border-top text-center small flex-shrink-0 bg-white">
+                <a asp-controller="KnowledgeMap" asp-action="Index" class="text-decoration-none fw-semibold text-primary d-inline-flex align-items-center gap-1">
+                    <span>Bản đồ tri thức hình học</span>
+                    <span>&rarr;</span>
                 </a>
             </div>
         </div>
-    </div>
+    </aside>
 
-    <!-- RIGHT MAIN CONTENT -->
-    <div class="col-lg-8 col-xl-9" id="mainContentCol">
+    <!-- RIGHT MAIN CONTENT: Padded & Centered reading flow -->
+    <main id="mainContentCol" class="flex-grow-1 min-vw-0 px-3 px-md-4 px-xl-5 py-4 overflow-x-hidden">
+        <div style="max-width: 1100px; margin: 0 auto;">
+            <!-- Top Header / Breadcrumb -->
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <a asp-controller="Curriculum" asp-action="Index" class="btn btn-sm btn-light border text-muted">
+                        Lộ trình học tập
+                    </a>
+                    <span class="text-muted small">&rsaquo;</span>
+                    <span class="text-dark small fw-semibold">@Model.GradeTitle</span>
+                </div>
+
+                <div>
+                    <span class="badge @statusClass badge-status">
+                        @statusText
+                    </span>
+                </div>
+            </div>
         <!-- Lesson Header -->
         <div class="ylg-card p-4 mb-4">
             <h2 class="fw-extrabold text-dark mb-2">@Model.Lesson.Title</h2>
@@ -473,7 +478,8 @@
                 </a>
             }
         </div>
-    </div>
+        </div>
+    </main>
 </div>
 
 @section Scripts {
@@ -485,21 +491,18 @@
     <script>
         // Coursera Sidebar Toggle (Clean Icon Button on Sidebar & Floating Dock Tab)
         const sidebar = document.getElementById('courseSidebarCol');
-        const content = document.getElementById('mainContentCol');
         const btnCollapse = document.getElementById('btnCollapseSidebar');
         const btnExpand = document.getElementById('btnExpandSidebar');
 
         function setSidebarState(collapsed) {
-            if (!sidebar || !content || !btnExpand) return;
+            if (!sidebar || !btnExpand) return;
             if (collapsed) {
                 sidebar.classList.add('d-none');
-                content.className = 'col-12';
                 btnExpand.classList.remove('d-none');
                 btnExpand.classList.add('d-flex');
                 localStorage.setItem('ylg_course_sidebar_collapsed', 'true');
             } else {
                 sidebar.classList.remove('d-none');
-                content.className = 'col-lg-8 col-xl-9';
                 btnExpand.classList.remove('d-flex');
                 btnExpand.classList.add('d-none');
                 localStorage.setItem('ylg_course_sidebar_collapsed', 'false');

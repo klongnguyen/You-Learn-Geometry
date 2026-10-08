@@ -160,26 +160,32 @@
         </nav>
     </header>
 
-    <div class="container py-4 flex-grow-1">
+    <div class="@(ViewData["FluidLayout"] as bool? == true ? "container-fluid p-0" : "container py-4") flex-grow-1">
         @if (TempData["SuccessMessage"] != null)
         {
-            <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
-                <div>@TempData["SuccessMessage"]</div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="@(ViewData["FluidLayout"] as bool? == true ? "container pt-3" : "")">
+                <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+                    <div>@TempData["SuccessMessage"]</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             </div>
         }
         @if (TempData["ErrorMessage"] != null)
         {
-            <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
-                <div>@TempData["ErrorMessage"]</div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="@(ViewData["FluidLayout"] as bool? == true ? "container pt-3" : "")">
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+                    <div>@TempData["ErrorMessage"]</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             </div>
         }
         @if (TempData["InfoMessage"] != null)
         {
-            <div class="alert alert-info alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
-                <div>@TempData["InfoMessage"]</div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="@(ViewData["FluidLayout"] as bool? == true ? "container pt-3" : "")">
+                <div class="alert alert-info alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+                    <div>@TempData["InfoMessage"]</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             </div>
         }
 
