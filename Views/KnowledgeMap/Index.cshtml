@@ -9,7 +9,7 @@
         </h2>
         <p class="text-muted mb-0">Sơ đồ mối quan hệ kế thừa và chuyển hóa tính chất giữa các hình học phẳng.</p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex flex-wrap gap-2">
         <select id="gradeFilterSelect" class="form-select form-select-sm w-auto">
             <option value="">Tất cả cấp độ (Lớp 6 - 9)</option>
             <option value="6">Lớp 6 (Hình học trực quan)</option>
@@ -17,7 +17,10 @@
             <option value="8">Lớp 8 (Tứ giác & Định lý)</option>
             <option value="9">Lớp 9 (Đường tròn & Lượng giác)</option>
         </select>
-        <button id="btnFitGraph" class="btn btn-sm btn-outline-secondary">
+        <button id="btnToggleLayout" class="btn btn-sm btn-outline-primary" type="button">
+            Sơ đồ mạng (Cose)
+        </button>
+        <button id="btnFitGraph" class="btn btn-sm btn-outline-secondary" type="button">
             Căn giữa
         </button>
     </div>
@@ -106,10 +109,45 @@
 </div>
 
 @section Scripts {
-    <!-- Load Cytoscape.js -->
+    <!-- Load Cytoscape.js & Dagre Layout for Tree Hierarchy -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"></script>
     <script>
         let cy = null;
+        let currentLayoutName = 'dagre';
+
+        function getLayoutConfig(layoutName) {
+            // Check if dagre extension is registered
+            if (layoutName === 'dagre') {
+                return {
+                    name: 'dagre',
+                    rankDir: 'TB', // Top to bottom hierarchy (Root -> Families -> Shapes)
+                    nodeSep: 70,   // Clear horizontal space between nodes
+                    rankSep: 110,  // Clear vertical space between levels
+                    edgeSep: 35,
+                    padding: 40,
+                    animate: true,
+                    animationDuration: 400,
+                    fit: true
+                };
+            }
+            // Fallback: Cose (Spring physics with high node repulsion so nodes never collide)
+            return {
+                name: 'cose',
+                animate: true,
+                animationDuration: 600,
+                fit: true,
+                padding: 40,
+                componentSpacing: 130,
+                nodeRepulsion: function(node) { return 7000000; },
+                nodeOverlap: 40,
+                idealEdgeLength: function(edge) { return 130; },
+                edgeElasticity: function(edge) { return 100; },
+                gravity: 30,
+                numIter: 1000
+            };
+        }
 
         function initCytoscape(elements) {
             cy = cytoscape({
@@ -124,15 +162,21 @@
                             'color': '#0f172a',
                             'font-family': 'Plus Jakarta Sans, sans-serif',
                             'font-weight': '600',
-                            'font-size': '12px',
+                            'font-size': '11px',
                             'text-valign': 'bottom',
                             'text-margin-y': '6px',
-                            'width': '46px',
-                            'height': '46px',
-                            'border-width': '3px',
+                            'text-wrap': 'wrap',
+                            'text-max-width': '85px',
+                            'text-background-color': '#ffffff',
+                            'text-background-opacity': 0.9,
+                            'text-background-padding': '3px',
+                            'text-background-shape': 'roundrectangle',
+                            'width': '42px',
+                            'height': '42px',
+                            'border-width': '2.5px',
                             'border-color': '#ffffff',
-                            'shadow-blur': '10px',
-                            'shadow-color': 'rgba(0,0,0,0.12)',
+                            'shadow-blur': '8px',
+                            'shadow-color': 'rgba(0,0,0,0.1)',
                             'shadow-opacity': 0.8
                         }
                     },
@@ -141,16 +185,16 @@
                         style: {
                             'border-color': '#f59e0b',
                             'border-width': '4px',
-                            'width': '56px',
-                            'height': '56px'
+                            'width': '52px',
+                            'height': '52px'
                         }
                     },
                     {
                         selector: 'edge',
                         style: {
                             'width': 2,
-                            'line-color': '#6366f1',
-                            'target-arrow-color': '#6366f1',
+                            'line-color': '#818cf8',
+                            'target-arrow-color': '#818cf8',
                             'target-arrow-shape': 'triangle',
                             'curve-style': 'bezier',
                             'arrow-scale': 1.1,
@@ -158,20 +202,15 @@
                             'label': 'data(label)',
                             'font-size': '10px',
                             'text-rotation': 'autorotate',
-                            'text-background-opacity': 0.85,
+                            'text-background-opacity': 0.9,
                             'text-background-color': '#ffffff',
                             'text-background-padding': '2px',
+                            'text-background-shape': 'roundrectangle',
                             'color': '#475569'
                         }
                     }
                 ],
-                layout: {
-                    name: 'breadthfirst',
-                    directed: true,
-                    roots: '#HinhHocPhang, #HinhTuGiac, #HinhTamGiac, #HinhTron',
-                    padding: 30,
-                    spacingFactor: 1.25
-                }
+                layout: getLayoutConfig(currentLayoutName)
             });
 
             cy.on('tap', 'node', function(evt) {
@@ -180,9 +219,15 @@
                 showNodeDetails(d);
             });
 
-            document.getElementById('btnFitGraph').addEventListener('click', () => {
-                cy.fit(null, 30);
-            });
+            document.getElementById('btnFitGraph').onclick = () => {
+                cy.fit(null, 40);
+            };
+
+            document.getElementById('btnToggleLayout').onclick = () => {
+                currentLayoutName = (currentLayoutName === 'dagre') ? 'cose' : 'dagre';
+                document.getElementById('btnToggleLayout').innerText = (currentLayoutName === 'dagre') ? 'Sơ đồ mạng (Cose)' : 'Sơ đồ cây (Dagre)';
+                cy.layout(getLayoutConfig(currentLayoutName)).run();
+            };
         }
 
         function showNodeDetails(d) {

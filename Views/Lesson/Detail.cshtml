@@ -17,18 +17,106 @@
     };
 }
 
-<div class="row g-4">
-    <div class="col-lg-9">
+<!-- Top Header & Sidebar Toggle -->
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div class="d-flex align-items-center gap-2">
+        <button id="btnToggleSidebar" type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" title="Ẩn/Hiện danh sách bài học">
+            <span id="sidebarToggleIcon">◀</span>
+            <span id="sidebarToggleText" class="d-none d-sm-inline">Thu gọn danh sách</span>
+        </button>
+        <a asp-controller="Curriculum" asp-action="Index" class="btn btn-sm btn-light border text-muted">
+            Lộ trình học tập
+        </a>
+        <span class="text-muted small">&rsaquo;</span>
+        <span class="text-dark small fw-semibold">@Model.GradeTitle</span>
+    </div>
+
+    <div>
+        <span class="badge @statusClass badge-status">
+            @statusText
+        </span>
+    </div>
+</div>
+
+<div class="row g-4" id="lessonContainerRow">
+    <!-- LEFT SIDEBAR: Coursera-style Course Navigator -->
+    <div class="col-lg-4 col-xl-3" id="courseSidebarCol">
+        <div class="ylg-card p-3 sticky-top" style="top: 85px; max-height: calc(100vh - 110px); overflow-y: auto;">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                <h6 class="fw-bold text-dark mb-0">@Model.GradeTitle</h6>
+            </div>
+
+            <!-- Module Accordion -->
+            <div class="d-flex flex-column gap-2" id="moduleAccordion">
+                @for (int tIdx = 0; tIdx < Model.CourseTopics.Count; tIdx++)
+                {
+                    var tItem = Model.CourseTopics[tIdx];
+                    bool isCurrentTopic = tItem.Lessons.Any(l => l.Lesson.Id == Model.Lesson.Id) || (tItem.Topic.TopicCode == Model.CurrentTopicCode);
+                    string collapseId = $"collapse_topic_{tIdx}";
+
+                    <div class="border rounded-3 overflow-hidden bg-white">
+                        <!-- Module Header with arrow toggle -->
+                        <div class="p-2 px-3 bg-light d-flex justify-content-between align-items-center module-header"
+                             data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="@(isCurrentTopic ? "true" : "false")"
+                             style="cursor: pointer; user-select: none;">
+                            <div class="small fw-bold text-dark text-truncate pe-2">
+                                @tItem.Topic.Title
+                            </div>
+                            <span class="chevron-icon small text-muted">@(isCurrentTopic ? "▲" : "▼")</span>
+                        </div>
+
+                        <!-- Module Lessons List -->
+                        <div id="@collapseId" class="collapse @(isCurrentTopic ? "show" : "")">
+                            <div class="list-group list-group-flush small">
+                                @foreach (var lItem in tItem.Lessons)
+                                {
+                                    bool isCurrentLesson = (lItem.Lesson.Id == Model.Lesson.Id);
+                                    bool isDone = (lItem.Progress?.Status == "Completed");
+
+                                    <a asp-action="Detail" asp-route-id="@lItem.Lesson.Id"
+                                       class="list-group-item list-group-item-action d-flex align-items-start gap-2 py-2 px-3 border-0 @(isCurrentLesson ? "bg-primary-subtle text-primary fw-semibold border-start border-4 border-primary" : "text-dark")">
+                                        <div class="mt-1 flex-shrink-0">
+                                            @if (isDone)
+                                            {
+                                                <span class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center" style="width: 18px; height: 18px; font-size: 11px;">✓</span>
+                                            }
+                                            else if (lItem.Progress?.Status == "AwaitingTest" || lItem.Progress?.Status == "Learning")
+                                            {
+                                                <span class="rounded-circle border border-primary text-primary d-inline-flex align-items-center justify-content-center" style="width: 18px; height: 18px; font-size: 9px;">●</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="rounded-circle border border-secondary d-inline-block" style="width: 18px; height: 18px;"></span>
+                                            }
+                                        </div>
+                                        <div class="flex-grow-1 text-truncate">
+                                            <div class="text-truncate">@lItem.Lesson.Title</div>
+                                            <div class="text-muted" style="font-size: 0.72rem;">
+                                                @(lItem.Lesson.HasGeometryLab ? "Lab tương tác" : "Lý thuyết")
+                                                @(lItem.Lesson.HasMiniTest ? " • Mini Test" : "")
+                                            </div>
+                                        </div>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Knowledge Map Shortcut -->
+            <div class="pt-3 mt-3 border-top text-center small">
+                <a asp-controller="KnowledgeMap" asp-action="Index" class="text-decoration-none fw-semibold text-primary">
+                    Bản đồ tri thức hình học
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT MAIN CONTENT -->
+    <div class="col-lg-8 col-xl-9" id="mainContentCol">
         <!-- Lesson Header -->
         <div class="ylg-card p-4 mb-4">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
-                <a asp-controller="Curriculum" asp-action="Index" class="text-decoration-none small text-muted">
-                    Quay lại danh sách bài học
-                </a>
-                <span class="badge @statusClass badge-status">
-                    @statusText
-                </span>
-            </div>
             <h2 class="fw-extrabold text-dark mb-2">@Model.Lesson.Title</h2>
             <p class="text-muted lead fs-6 mb-0">@Model.Lesson.Summary</p>
         </div>
@@ -232,31 +320,45 @@
             </div>
         }
 
-        <!-- Section 6: Xác nhận hoàn thành bài học -->
-        <div class="ylg-card p-4 p-md-5 mb-4 text-center bg-light border-2 border-primary border-dashed">
-            <h4 class="fw-bold text-dark mb-2">
-                Xác nhận hoàn thành bài học
-            </h4>
-            <p class="text-muted small mb-4" style="max-width: 580px; margin: 0 auto;">
-                Nhấn nút bên dưới sau khi bạn đã đọc và hiểu các nội dung trong bài học.
-            </p>
-
-            <form asp-action="MarkCompleted" asp-route-id="@Model.Lesson.Id" method="post">
-                @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-ylg-success btn-lg px-5 py-3 fs-5 shadow">
-                    Đánh dấu hoàn thành bài học
-                </button>
-            </form>
-
-            @if (Model.CurrentStatus == "Completed")
-            {
-                <div class="text-success fw-bold mt-3">
-                    Bạn đã hoàn thành bài học này.
-                </div>
-            }
+        <!-- Coursera-style Mark as Completed Button (Compact & Clean) -->
+        <div class="p-3 my-4 bg-white rounded-3 border d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <strong class="d-block text-dark">Trạng thái bài học:</strong>
+                <small class="text-muted">
+                    @if (Model.CurrentStatus == "Completed")
+                    {
+                        <span class="text-success fw-semibold">✓ Bạn đã hoàn thành bài học này.</span>
+                    }
+                    else if (Model.Lesson.HasMiniTest)
+                    {
+                        <span>Nhấn xác nhận sau khi đọc bài, sau đó hoàn tất Mini Test bên dưới (đạt từ 75%) để hoàn thành.</span>
+                    }
+                    else
+                    {
+                        <span>Nhấn xác nhận sau khi bạn đã đọc hiểu nội dung bài học.</span>
+                    }
+                </small>
+            </div>
+            <div>
+                @if (Model.CurrentStatus == "Completed")
+                {
+                    <button type="button" class="btn btn-success px-4 py-2 fw-semibold" disabled>
+                        ✓ Đã hoàn thành
+                    </button>
+                }
+                else
+                {
+                    <form asp-action="MarkCompleted" asp-route-id="@Model.Lesson.Id" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold shadow-sm">
+                            Xác nhận hoàn thành
+                        </button>
+                    </form>
+                }
+            </div>
         </div>
 
-        <!-- Section 7: Mini Test (Nếu có) -->
+        <!-- Section 6: Mini Test (Nếu có) -->
         @if (Model.Lesson.HasMiniTest && Model.Lesson.MiniTest.Any())
         {
             <div class="ylg-card p-4 mb-4" id="miniTestSection">
@@ -309,12 +411,12 @@
             </div>
         }
 
-        <!-- Bottom Navigation -->
-        <div class="d-flex justify-content-between align-items-center pt-3">
+        <!-- Bottom Navigation: Coursera "Go to next item" style -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center pt-3 border-top mt-4 gap-2">
             @if (Model.PreviousLesson != null)
             {
-                <a asp-action="Detail" asp-route-id="@Model.PreviousLesson.Id" class="btn btn-outline-secondary">
-                    Bài trước: @Model.PreviousLesson.Title
+                <a asp-action="Detail" asp-route-id="@Model.PreviousLesson.Id" class="btn btn-outline-secondary px-3 py-2">
+                    &larr; Bài trước: @Model.PreviousLesson.Title
                 </a>
             }
             else
@@ -324,42 +426,16 @@
 
             @if (Model.NextLesson != null)
             {
-                <a asp-action="Detail" asp-route-id="@Model.NextLesson.Id" class="btn btn-ylg-primary">
-                    Bài tiếp: @Model.NextLesson.Title
+                <a asp-action="Detail" asp-route-id="@Model.NextLesson.Id" class="btn btn-ylg-primary px-4 py-2">
+                    Bài tiếp theo: @Model.NextLesson.Title &rarr;
                 </a>
             }
-        </div>
-    </div>
-
-    <!-- Right Sidebar Navigation -->
-    <div class="col-lg-3">
-        <div class="ylg-card p-3 sticky-top" style="top: 85px;">
-            <h6 class="fw-bold text-dark mb-3">Mục lục bài học</h6>
-            <div class="nav flex-column gap-2 small">
-                <a href="#" class="nav-link text-muted px-2 py-1">1. Khái niệm</a>
-                <a href="#" class="nav-link text-muted px-2 py-1">2. Tính chất & Công thức</a>
-                <a href="#" class="nav-link text-muted px-2 py-1">3. Ví dụ minh họa</a>
-                @if (Model.Lesson.HasGeometryLab)
-                {
-                    <a href="#labSection" class="nav-link text-muted px-2 py-1">4. Geometry Lab</a>
-                }
-                @if (Model.Lesson.PracticeExercises.Any())
-                {
-                    <a href="#" class="nav-link text-muted px-2 py-1">5. Bài tập thực hành</a>
-                }
-                @if (Model.Lesson.HasMiniTest)
-                {
-                    <a href="#miniTestSection" class="nav-link text-muted px-2 py-1">6. Mini Test</a>
-                }
-            </div>
-
-            <hr class="my-3">
-            <div class="p-2 bg-light rounded text-center small text-muted">
-                Liên hệ tri thức: <br />
-                <a asp-controller="KnowledgeMap" asp-action="Index" class="fw-bold text-primary">
-                    Xem Bản đồ tri thức
+            else
+            {
+                <a asp-controller="Curriculum" asp-action="Index" class="btn btn-outline-primary px-4 py-2">
+                    Hoàn tất lộ trình &rarr;
                 </a>
-            </div>
+            }
         </div>
     </div>
 </div>
@@ -370,4 +446,41 @@
     {
         <script src="~/js/geometry-lab.js" asp-append-version="true"></script>
     }
+    <script>
+        // Coursera Sidebar Collapse Toggle
+        document.getElementById('btnToggleSidebar')?.addEventListener('click', function() {
+            const sidebar = document.getElementById('courseSidebarCol');
+            const content = document.getElementById('mainContentCol');
+            const icon = document.getElementById('sidebarToggleIcon');
+            const text = document.getElementById('sidebarToggleText');
+
+            if (sidebar.classList.contains('d-none')) {
+                sidebar.classList.remove('d-none');
+                content.className = 'col-lg-8 col-xl-9';
+                icon.innerText = '◀';
+                text.innerText = 'Thu gọn danh sách';
+            } else {
+                sidebar.classList.add('d-none');
+                content.className = 'col-12';
+                icon.innerText = '▶';
+                text.innerText = 'Hiện danh sách bài học';
+            }
+        });
+
+        // Module chevron indicators update
+        document.querySelectorAll('.module-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const icon = this.querySelector('.chevron-icon');
+                const targetId = this.getAttribute('data-bs-target');
+                const target = document.querySelector(targetId);
+                setTimeout(() => {
+                    if (target && target.classList.contains('show')) {
+                        icon.innerText = '▲';
+                    } else {
+                        icon.innerText = '▼';
+                    }
+                }, 350);
+            });
+        });
+    </script>
 }

@@ -52,45 +52,72 @@ public class Neo4jService : INeo4jService
         var seenNodes = new HashSet<string>();
         var seenEdges = new HashSet<string>();
 
+        // Define which node IDs belong to each Grade filter
+        HashSet<string>? allowedNodeIds = null;
+        if (!string.IsNullOrEmpty(minGradeFilter))
+        {
+            allowedNodeIds = minGradeFilter switch
+            {
+                "6" => new HashSet<string> {
+                    "HinhHocPhang", "HinhTamGiac", "TamGiacDeu", "HinhThang", "HinhThangCan",
+                    "HinhBinhHanh", "HinhChuNhat", "HinhThoi", "HinhVuong", "HinhLucGiacDeu"
+                },
+                "7" => new HashSet<string> {
+                    "HinhHocPhang", "HinhTamGiac", "TamGiacCan", "TamGiacDeu", "TamGiacVuong", "TamGiacVuongCan"
+                },
+                "8" => new HashSet<string> {
+                    "HinhHocPhang", "HinhTuGiac", "HinhThang", "HinhThangCan", "HinhThangVuong",
+                    "HinhBinhHanh", "HinhChuNhat", "HinhThoi", "HinhVuong"
+                },
+                "9" => new HashSet<string> {
+                    "HinhHocPhang", "HinhTron", "CungVaDay", "TiepTuyen", "GocNoiTiep", "TuGiacNoiTiep", "DaGiacDeu"
+                },
+                _ => null
+            };
+        }
+
         while (await cursor.FetchAsync())
         {
             var nodeRecord = cursor.Current["n"]?.As<INode>();
             if (nodeRecord != null)
             {
                 string id = nodeRecord.Properties.ContainsKey("id") ? nodeRecord.Properties["id"].As<string>() : nodeRecord.ElementId;
-                if (!seenNodes.Contains(id))
+                if (allowedNodeIds == null || allowedNodeIds.Contains(id))
                 {
-                    seenNodes.Add(id);
-                    string label = nodeRecord.Properties.ContainsKey("label") ? nodeRecord.Properties["label"].As<string>() : id;
-                    string type = nodeRecord.Properties.ContainsKey("type") ? nodeRecord.Properties["type"].As<string>() : "Shape";
-                    string minGrade = nodeRecord.Properties.ContainsKey("minGrade") ? nodeRecord.Properties["minGrade"].As<string>() : "6";
-                    string definition = nodeRecord.Properties.ContainsKey("definition") ? nodeRecord.Properties["definition"].As<string>() : "";
-                    string sign = nodeRecord.Properties.ContainsKey("identificationSign") ? nodeRecord.Properties["identificationSign"].As<string>() : "";
-                    string tip = nodeRecord.Properties.ContainsKey("learningTip") ? nodeRecord.Properties["learningTip"].As<string>() : "";
-
-                    string color = id switch
+                    if (!seenNodes.Contains(id))
                     {
-                        "HinhHocPhang" => "#4338ca", // Deep Indigo root
-                        var x when x.Contains("TamGiac") => "#059669", // Emerald Green for Triangles
-                        var x when x.Contains("Tron") || x.Contains("Cung") || x.Contains("TiepTuyen") || x.Contains("GocNoiTiep") => "#e11d48", // Rose Pink for Circles
-                        var x when x.Contains("DaGiac") || x.Contains("LucGiac") => "#7c3aed", // Violet for Regular Polygons
-                        _ => "#2563eb" // Royal Blue for Quads
-                    };
+                        seenNodes.Add(id);
+                        string label = nodeRecord.Properties.ContainsKey("label") ? nodeRecord.Properties["label"].As<string>() : id;
+                        string type = nodeRecord.Properties.ContainsKey("type") ? nodeRecord.Properties["type"].As<string>() : "Shape";
+                        string minGrade = nodeRecord.Properties.ContainsKey("minGrade") ? nodeRecord.Properties["minGrade"].As<string>() : "6";
+                        string definition = nodeRecord.Properties.ContainsKey("definition") ? nodeRecord.Properties["definition"].As<string>() : "";
+                        string sign = nodeRecord.Properties.ContainsKey("identificationSign") ? nodeRecord.Properties["identificationSign"].As<string>() : "";
+                        string tip = nodeRecord.Properties.ContainsKey("learningTip") ? nodeRecord.Properties["learningTip"].As<string>() : "";
 
-                    result.Nodes.Add(new CytoscapeNodeElement
-                    {
-                        Data = new CytoscapeNodeData
+                        string color = id switch
                         {
-                            Id = id,
-                            Label = label,
-                            Type = type,
-                            MinGrade = minGrade,
-                            Definition = definition,
-                            IdentificationSign = sign,
-                            LearningTip = tip,
-                            Color = color
-                        }
-                    });
+                            "HinhHocPhang" => "#4338ca", // Deep Indigo root
+                            var x when x.Contains("TamGiac") => "#059669", // Emerald Green for Triangles
+                            var x when x.Contains("Tron") || x.Contains("Cung") || x.Contains("TiepTuyen") || x.Contains("GocNoiTiep") => "#e11d48", // Rose Pink for Circles
+                            var x when x.Contains("DaGiac") || x.Contains("LucGiac") => "#7c3aed", // Violet for Regular Polygons
+                            _ => "#2563eb" // Royal Blue for Quads
+                        };
+
+                        result.Nodes.Add(new CytoscapeNodeElement
+                        {
+                            Data = new CytoscapeNodeData
+                            {
+                                Id = id,
+                                Label = label,
+                                Type = type,
+                                MinGrade = minGrade,
+                                Definition = definition,
+                                IdentificationSign = sign,
+                                LearningTip = tip,
+                                Color = color
+                            }
+                        });
+                    }
                 }
             }
 
@@ -100,27 +127,32 @@ public class Neo4jService : INeo4jService
             {
                 string srcId = nodeRecord.Properties.ContainsKey("id") ? nodeRecord.Properties["id"].As<string>() : nodeRecord.ElementId;
                 string tgtId = targetRecord.Properties.ContainsKey("id") ? targetRecord.Properties["id"].As<string>() : targetRecord.ElementId;
-                string relType = relRecord.Type;
-                string edgeId = $"{srcId}_{relType}_{tgtId}";
 
-                if (!seenEdges.Contains(edgeId))
+                // Both nodes must be allowed!
+                if (allowedNodeIds == null || (allowedNodeIds.Contains(srcId) && allowedNodeIds.Contains(tgtId)))
                 {
-                    seenEdges.Add(edgeId);
-                    string label = relRecord.Properties.ContainsKey("label") ? relRecord.Properties["label"].As<string>() : relType;
-                    string explanation = relRecord.Properties.ContainsKey("explanation") ? relRecord.Properties["explanation"].As<string>() : "";
+                    string relType = relRecord.Type;
+                    string edgeId = $"{srcId}_{relType}_{tgtId}";
 
-                    result.Edges.Add(new CytoscapeEdgeElement
+                    if (!seenEdges.Contains(edgeId))
                     {
-                        Data = new CytoscapeEdgeData
+                        seenEdges.Add(edgeId);
+                        string label = relRecord.Properties.ContainsKey("label") ? relRecord.Properties["label"].As<string>() : relType;
+                        string explanation = relRecord.Properties.ContainsKey("explanation") ? relRecord.Properties["explanation"].As<string>() : "";
+
+                        result.Edges.Add(new CytoscapeEdgeElement
                         {
-                            Id = edgeId,
-                            Source = srcId,
-                            Target = tgtId,
-                            Type = relType,
-                            Label = label,
-                            Explanation = explanation
-                        }
-                    });
+                            Data = new CytoscapeEdgeData
+                            {
+                                Id = edgeId,
+                                Source = srcId,
+                                Target = tgtId,
+                                Type = relType,
+                                Label = label,
+                                Explanation = explanation
+                            }
+                        });
+                    }
                 }
             }
         }

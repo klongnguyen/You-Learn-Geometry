@@ -59,6 +59,9 @@ public class LessonDetailViewModel
     public string CurrentStatus => Progress?.Status ?? "NotStarted";
     public Lesson? PreviousLesson { get; set; }
     public Lesson? NextLesson { get; set; }
+    public string GradeTitle { get; set; } = "Hình học THCS";
+    public string CurrentTopicCode { get; set; } = string.Empty;
+    public List<TopicItemViewModel> CourseTopics { get; set; } = new();
 }
 
 public class PracticeSubmitModel

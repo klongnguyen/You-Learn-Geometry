@@ -65,12 +65,52 @@ public class LessonController : Controller
         Lesson? prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
         Lesson? nextLesson = currentIndex >= 0 && currentIndex < allLessons.Count - 1 ? allLessons[currentIndex + 1] : null;
 
+        // Load course structure for Coursera-style sidebar
+        var curriculum = await _mongo.CurriculumLevels
+            .Find(c => c.GradeLevel == lesson.GradeLevel)
+            .FirstOrDefaultAsync();
+        var topics = curriculum?.Topics.OrderBy(t => t.Order).ToList() ?? new List<Topic>();
+
+        var userProgressList = await _mongo.LearningProgress
+            .Find(p => p.UserId == userId)
+            .ToListAsync();
+        var progressMap = userProgressList.ToDictionary(p => p.LessonId);
+
+        var courseTopics = new List<TopicItemViewModel>();
+        foreach (var t in topics)
+        {
+            var topicLessons = allLessons.Where(l => l.TopicCode == t.TopicCode).ToList();
+            var lessonItems = topicLessons.Select(l => new LessonProgressItem
+            {
+                Lesson = l,
+                Progress = progressMap.GetValueOrDefault(l.Id)
+            }).ToList();
+
+            courseTopics.Add(new TopicItemViewModel
+            {
+                Topic = t,
+                Lessons = lessonItems
+            });
+        }
+
+        var gradeTitle = lesson.GradeLevel switch
+        {
+            "Lop6" => "Hình học Lớp 6",
+            "Lop7" => "Hình học Lớp 7",
+            "Lop8" => "Hình học Lớp 8",
+            "Lop9" => "Hình học Lớp 9",
+            _ => "Hình học THCS"
+        };
+
         var vm = new LessonDetailViewModel
         {
             Lesson = lesson,
             Progress = progress,
             PreviousLesson = prevLesson,
-            NextLesson = nextLesson
+            NextLesson = nextLesson,
+            GradeTitle = gradeTitle,
+            CurrentTopicCode = lesson.TopicCode,
+            CourseTopics = courseTopics
         };
 
         return View(vm);
