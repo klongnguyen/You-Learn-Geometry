@@ -1,0 +1,197 @@
+@{
+    ViewData["Title"] = "Geometry Knowledge Map - Bản đồ tri thức";
+}
+
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1 text-dark">
+            <i class="bi bi-diagram-3 text-primary me-2"></i> Geometry Knowledge Map
+        </h2>
+        <p class="text-muted mb-0">Biểu diễn mối quan hệ kế thừa và tương quan giữa các hình học trên nền tảng <strong>Neo4j Graph Database</strong>.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <select id="gradeFilterSelect" class="form-select form-select-sm w-auto">
+            <option value="">Tất cả cấp độ</option>
+            <option value="6">Lớp 6 (Hình trực quan)</option>
+            <option value="8">Lớp 8 (Tứ giác đầy đủ)</option>
+        </select>
+        <button id="btnFitGraph" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrows-fullscreen"></i> Căn giữa
+        </button>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="ylg-card p-3 position-relative">
+            <!-- Cytoscape Container -->
+            <div id="cy-container"></div>
+
+            <!-- Legend Overlay -->
+            <div class="position-absolute bottom-0 start-0 m-4 p-2 bg-white bg-opacity-90 rounded border shadow-sm small">
+                <span class="d-block fw-bold text-dark mb-1">Ghi chú quan hệ:</span>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span style="display:inline-block; width:20px; height:3px; background:#4f46e5;"></span>
+                    <small>IS_SPECIAL_CASE_OF (Trường hợp đặc biệt)</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Node Inspector Drawer -->
+    <div class="col-lg-4">
+        <div class="ylg-card p-4 h-100" id="nodeDetailsCard">
+            <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                <i class="bi bi-info-circle text-primary me-1"></i> Hồ sơ tri thức hình học
+            </h5>
+
+            <div id="noSelectionMsg" class="text-center py-5 text-muted">
+                <i class="bi bi-cursor fs-1 d-block mb-2 text-secondary"></i>
+                <p>Nhấp vào bất kỳ hình nào trên bản đồ để xem định nghĩa, dấu hiệu nhận biết và mẹo học kế thừa.</p>
+            </div>
+
+            <div id="nodeContent" style="display:none;">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h3 class="fw-extrabold text-primary mb-0" id="nodeLabel">Hình vuông</h3>
+                    <span class="badge bg-primary-subtle text-primary" id="nodeGrade">Lớp 6</span>
+                </div>
+
+                <div class="mb-3">
+                    <strong class="d-block text-dark small fw-bold mb-1">Định nghĩa:</strong>
+                    <div class="p-3 bg-light rounded-3 text-dark small" id="nodeDef"></div>
+                </div>
+
+                <div class="mb-3">
+                    <strong class="d-block text-dark small fw-bold mb-1">Dấu hiệu nhận biết:</strong>
+                    <div class="p-3 bg-light rounded-3 text-dark small" id="nodeSign"></div>
+                </div>
+
+                <div class="p-3 bg-warning bg-opacity-10 rounded-3 border border-warning-subtle mb-3">
+                    <strong class="d-block text-warning-emphasis small fw-bold mb-1">
+                        <i class="bi bi-lightbulb-fill text-warning me-1"></i> Mẹo học tính kế thừa:
+                    </strong>
+                    <p class="mb-0 text-dark small" id="nodeTip"></p>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <a asp-controller="Curriculum" asp-action="Index" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-book me-1"></i> Xem các bài học liên quan
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Load Cytoscape.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+    <script>
+        let cy = null;
+
+        function initCytoscape(elements) {
+            cy = cytoscape({
+                container: document.getElementById('cy-container'),
+                elements: elements,
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'background-color': 'data(color)',
+                            'label': 'data(label)',
+                            'color': '#1e293b',
+                            'font-family': 'Plus Jakarta Sans, sans-serif',
+                            'font-weight': 'bold',
+                            'font-size': '13px',
+                            'text-valign': 'bottom',
+                            'text-margin-y': '6px',
+                            'width': '52px',
+                            'height': '52px',
+                            'border-width': '3px',
+                            'border-color': '#ffffff',
+                            'shadow-blur': '12px',
+                            'shadow-color': 'rgba(0,0,0,0.15)',
+                            'shadow-opacity': 0.8
+                        }
+                    },
+                    {
+                        selector: 'node:selected',
+                        style: {
+                            'border-color': '#ec4899',
+                            'border-width': '4px',
+                            'width': '60px',
+                            'height': '60px'
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style: {
+                            'width': 2.5,
+                            'line-color': '#4f46e5',
+                            'target-arrow-color': '#4f46e5',
+                            'target-arrow-shape': 'triangle',
+                            'curve-style': 'bezier',
+                            'arrow-scale': 1.2,
+                            'opacity': 0.85
+                        }
+                    }
+                ],
+                layout: {
+                    name: 'breadthfirst',
+                    directed: true,
+                    roots: '#HinhTuGiac, #HinhTamGiac, #HinhTron',
+                    padding: 40,
+                    spacingFactor: 1.25
+                }
+            });
+
+            cy.on('tap', 'node', function(evt) {
+                const node = evt.target;
+                const d = node.data();
+                showNodeDetails(d);
+            });
+
+            document.getElementById('btnFitGraph').addEventListener('click', () => {
+                cy.fit(null, 40);
+            });
+        }
+
+        function showNodeDetails(d) {
+            document.getElementById('noSelectionMsg').style.display = 'none';
+            document.getElementById('nodeContent').style.display = 'block';
+
+            document.getElementById('nodeLabel').innerText = d.label;
+            document.getElementById('nodeGrade').innerText = 'Lớp ' + (d.minGrade || '6');
+            document.getElementById('nodeDef').innerText = d.definition || 'Đang cập nhật định nghĩa.';
+            document.getElementById('nodeSign').innerText = d.identificationSign || 'Đang cập nhật dấu hiệu.';
+            document.getElementById('nodeTip').innerText = d.learningTip || 'Quan sát sơ đồ để thấy tính kế thừa tính chất từ các hình cha.';
+        }
+
+        function loadGraphData(minGrade) {
+            let url = '/KnowledgeMap/GetGraphData';
+            if (minGrade) url += `?minGrade=${minGrade}`;
+
+            fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                const elements = [];
+                (data.nodes || []).forEach(n => {
+                    elements.push({ group: 'nodes', data: n.data });
+                });
+                (data.edges || []).forEach(e => {
+                    elements.push({ group: 'edges', data: e.data });
+                });
+
+                if (cy) cy.destroy();
+                initCytoscape(elements);
+            })
+            .catch(err => console.error(err));
+        }
+
+        document.getElementById('gradeFilterSelect').addEventListener('change', function() {
+            loadGraphData(this.value);
+        });
+
+        loadGraphData('');
+    </script>
+}

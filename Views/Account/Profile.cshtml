@@ -1,0 +1,79 @@
+@model YouLearnGeometry.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+}
+
+<div class="row justify-content-center py-4">
+    <div class="col-md-7">
+        <div class="ylg-card p-4 shadow-sm mb-4">
+            <div class="d-flex align-items-center gap-3 mb-4 border-bottom pb-3">
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold fs-3" style="width: 64px; height: 64px;">
+                    @(Model.FullName.Substring(0, 1).ToUpper())
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-0 text-dark">@Model.FullName</h4>
+                    <span class="text-muted small">@Model.Email</span>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <small class="text-muted d-block">Tên đăng nhập</small>
+                        <strong class="text-dark">@Model.Username</strong>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <small class="text-muted d-block">Chuỗi học liên tục (Streak)</small>
+                        <strong class="text-danger"><i class="bi bi-fire me-1"></i> @Model.StreakCount ngày</strong>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="fw-bold mb-3 text-dark">Thay đổi Cấp độ / Lớp học</h5>
+            <form asp-action="UpdateGrade" method="post" class="mb-4">
+                @Html.AntiForgeryToken()
+                <div class="row g-2 align-items-center">
+                    <div class="col-sm-8">
+                        <select name="gradeLevel" class="form-select">
+                            <option value="Lop6" selected="@(Model.GradeLevel == "Lop6")">Lớp 6 - Nhận biết hình phẳng trực quan</option>
+                            <option value="Lop8" selected="@(Model.GradeLevel == "Lop8")">Lớp 8 - Tứ giác & Chứng minh suy luận</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-4">
+                        <button type="submit" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-check-lg me-1"></i> Lưu thay đổi
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <h5 class="fw-bold mb-3 text-dark">Huy hiệu đã đạt được</h5>
+            @if (Model.BadgesEarned.Any())
+            {
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var badge in Model.BadgesEarned)
+                    {
+                        var badgeName = badge switch
+                        {
+                            "khoi_dau" => "🌱 Khởi đầu nan",
+                            "ben_bi" => "🔥 Chiến binh bền bỉ (Streak 3)",
+                            "bac_thay_tu_giac" => "👑 Bậc thầy Tứ giác (Test ≥ 80%)",
+                            _ => badge
+                        };
+                        <span class="badge bg-warning-subtle text-dark border border-warning-subtle px-3 py-2 fs-6 rounded-pill">
+                            @badgeName
+                        </span>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-muted small p-3 bg-light rounded-3">
+                    Bạn chưa mở khóa huy hiệu nào. Hãy hoàn thành bài học đầu tiên để nhận huy hiệu <strong>🌱 Khởi đầu nan</strong> nhé!
+                </div>
+            }
+        </div>
+    </div>
+</div>

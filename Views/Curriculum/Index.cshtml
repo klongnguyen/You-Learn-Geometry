@@ -1,0 +1,118 @@
+@model YouLearnGeometry.ViewModels.CurriculumViewModel
+@{
+    ViewData["Title"] = "Chương trình & Chủ đề học tập";
+}
+
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1 text-dark">
+            <i class="bi bi-book-half text-primary me-2"></i> @Model.GradeTitle
+        </h2>
+        <p class="text-muted mb-0">Học sinh được tự do truy cập các bài theo nhu cầu; hệ thống khuyến nghị học theo thứ tự.</p>
+    </div>
+</div>
+
+@foreach (var topicItem in Model.Topics)
+{
+    <div class="ylg-card mb-4 overflow-hidden">
+        <div class="ylg-card-header bg-light">
+            <div>
+                <h5 class="fw-bold mb-1 text-dark">@topicItem.Topic.Title</h5>
+                <small class="text-muted">@topicItem.Topic.Description</small>
+            </div>
+            <div>
+                <span class="badge bg-primary px-3 py-2 rounded-pill">
+                    @topicItem.Lessons.Count Bài học
+                </span>
+            </div>
+        </div>
+
+        <div class="p-4">
+            <div class="row g-3">
+                @foreach (var item in topicItem.Lessons)
+                {
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded-3 bg-white h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                    <h6 class="fw-bold text-dark mb-0">@item.Lesson.Title</h6>
+                                    <span class="badge @item.StatusBadgeClass badge-status flex-shrink-0">
+                                        @item.StatusText
+                                    </span>
+                                </div>
+                                <p class="text-muted small mb-3">@item.Lesson.Summary</p>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                <small class="text-muted">
+                                    @if (item.Lesson.HasGeometryLab)
+                                    {
+                                        <span class="me-2 text-primary"><i class="bi bi-bounding-box"></i> Lab</span>
+                                    }
+                                    @if (item.Lesson.HasMiniTest)
+                                    {
+                                        <span class="text-warning"><i class="bi bi-question-circle"></i> Mini Test</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-success"><i class="bi bi-check-circle"></i> Đọc & TH</span>
+                                    }
+                                </small>
+                                <a asp-controller="Lesson" asp-action="Detail" asp-route-id="@item.Lesson.Id" class="btn btn-sm btn-outline-primary px-3">
+                                    @(item.Progress?.Status == "Completed" ? "Ôn tập" : "Học ngay")
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Topic Test Box -->
+            <div class="mt-4 p-4 border rounded-3 @(Model.IsTopicTestUnlocked ? "bg-primary-subtle border-primary-subtle" : "bg-light")">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge @(Model.IsTopicTestUnlocked ? "bg-primary" : "bg-secondary") rounded-pill">Topic Test (10 câu)</span>
+                            <span class="text-muted small">&bull; Không giới hạn thời gian &bull; Ngưỡng đạt 70%</span>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-1">Bài kiểm tra tổng hợp: @topicItem.Topic.Title</h5>
+                        <p class="text-muted small mb-0">
+                            @if (Model.IsTopicTestUnlocked)
+                            {
+                                <span>🎉 Đã mở khóa! Đạt từ 80% trở lên sẽ nhận ngay huy hiệu <strong>👑 Bậc thầy Tứ giác</strong>.</span>
+                            }
+                            else
+                            {
+                                <span>🔒 Bài kiểm tra sẽ mở khi bạn <strong>Đánh dấu hoàn thành</strong> toàn bộ các bài học trong chủ đề này.</span>
+                            }
+                        </p>
+                    </div>
+                    <div>
+                        @if (Model.IsTopicTestUnlocked)
+                        {
+                            <a asp-controller="Assessment" asp-action="TopicTest" asp-route-topicCode="@topicItem.Topic.TopicCode" class="btn btn-ylg-primary px-4 py-2">
+                                <i class="bi bi-pencil-square me-1"></i> Làm bài kiểm tra
+                            </a>
+                        }
+                        else
+                        {
+                            <button class="btn btn-secondary px-4 py-2" disabled>
+                                <i class="bi bi-lock me-1"></i> Chưa mở khóa
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                @if (Model.LatestTopicTestAttempt != null)
+                {
+                    <div class="mt-3 pt-3 border-top small d-flex align-items-center gap-3">
+                        <span class="text-muted">Lần làm gần nhất:</span>
+                        <strong class="@(Model.LatestTopicTestAttempt.IsPassed ? "text-success" : "text-danger")">
+                            @Model.LatestTopicTestAttempt.Score% (@Model.LatestTopicTestAttempt.CorrectCount / @Model.LatestTopicTestAttempt.TotalQuestions câu) - @(Model.LatestTopicTestAttempt.IsPassed ? "Đạt" : "Chưa đạt")
+                        </strong>
+                        <span class="text-muted">(@Model.LatestTopicTestAttempt.AttemptedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}

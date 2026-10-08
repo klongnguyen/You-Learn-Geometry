@@ -1,0 +1,60 @@
+@model List<YouLearnGeometry.Models.TestQuestion>
+@{
+    var topic = ViewBag.Topic as YouLearnGeometry.Models.Topic;
+    ViewData["Title"] = $"Bài kiểm tra: {topic?.Title ?? "Topic Test"}";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="ylg-card p-4 p-md-5 mb-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                <div>
+                    <span class="badge bg-primary px-3 py-1 rounded-pill mb-1">Topic Test (10 câu)</span>
+                    <h3 class="fw-bold text-dark mb-0">@topic?.Title</h3>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-warning text-dark fs-6">Đạt: 70%</span>
+                </div>
+            </div>
+
+            <div class="alert alert-info d-flex align-items-center mb-4 small" role="alert">
+                <i class="bi bi-info-circle-fill fs-5 me-2"></i>
+                <div>
+                    Bài kiểm tra không giới hạn thời gian. Đạt điểm từ <strong>80% trở lên</strong> sẽ giúp bạn mở khóa huy hiệu danh giá <strong>👑 Bậc thầy Tứ giác</strong>!
+                </div>
+            </div>
+
+            <form asp-action="SubmitTopicTest" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="topicCode" value="@topic?.TopicCode" />
+
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    var q = Model[i];
+                    <div class="p-3 mb-3 border rounded-3 bg-white">
+                        <h6 class="fw-bold text-dark mb-3">@q.QuestionText</h6>
+                        <input type="hidden" name="answers[@i].QuestionId" value="@q.Id" />
+                        @foreach (var opt in q.Options)
+                        {
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="answers[@i].SelectedOption" id="topic_@(q.Id)_@(opt.GetHashCode())" value="@opt" required>
+                                <label class="form-check-label text-dark" for="topic_@(q.Id)_@(opt.GetHashCode())">
+                                    @opt
+                                </label>
+                            </div>
+                        }
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-4">
+                    <a asp-controller="Curriculum" asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle me-1"></i> Rời bài làm
+                    </a>
+                    <button type="submit" class="btn btn-ylg-primary px-5 py-2 fs-6">
+                        <i class="bi bi-send-check me-1"></i> Hoàn thành & Nộp bài
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

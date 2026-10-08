@@ -1,0 +1,69 @@
+@model List<YouLearnGeometry.Models.Lesson>
+@{
+    ViewData["Title"] = "Quản lý Bài học";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold mb-1 text-dark">
+            <i class="bi bi-book-fill text-primary me-2"></i> Danh sách Bài học
+        </h3>
+        <p class="text-muted mb-0">Quản lý cấu trúc bài học, bật/tắt Geometry Lab và cấu hình Mini Test.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="EditLesson" class="btn btn-ylg-primary">
+            <i class="bi bi-plus-lg me-1"></i> Thêm bài học mới
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Dashboard Admin
+        </a>
+    </div>
+</div>
+
+<div class="ylg-card p-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>STT</th>
+                    <th>Tên bài học</th>
+                    <th>Mã bài</th>
+                    <th>Cấp độ</th>
+                    <th>Chủ đề</th>
+                    <th>Geometry Lab</th>
+                    <th>Hình Lab mặc định</th>
+                    <th>Mini Test</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var l in Model)
+                {
+                    <tr>
+                        <td>@l.Order</td>
+                        <td class="fw-bold text-dark">@l.Title</td>
+                        <td><code>@l.LessonCode</code></td>
+                        <td><span class="badge bg-light text-dark border">@l.GradeLevel</span></td>
+                        <td><small class="text-muted">@l.TopicCode</small></td>
+                        <td>
+                            <span class="badge @(l.HasGeometryLab ? "bg-success" : "bg-secondary")">
+                                @(l.HasGeometryLab ? "Bật" : "Tắt")
+                            </span>
+                        </td>
+                        <td><small>@l.DefaultLabShape</small></td>
+                        <td>
+                            <span class="badge @(l.HasMiniTest ? "bg-warning text-dark" : "bg-info")">
+                                @(l.HasMiniTest ? "Có (5-6 câu)" : "Không (Đọc & TH)")
+                            </span>
+                        </td>
+                        <td>
+                            <a asp-action="EditLesson" asp-route-id="@l.Id" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil-square"></i> Chỉnh sửa
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

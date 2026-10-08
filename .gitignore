@@ -99,13 +99,12 @@ target/
 .gradle/
 build/
 
-# C / C++
-*.o
-*.obj
-*.exe
-*.dll
-*.dylib
-*.out
-cmake-build-*/
-CMakeFiles/
-CMakeCache.txt
+# .NET / C#
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.userprefs
+

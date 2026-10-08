@@ -1,0 +1,128 @@
+@model YouLearnGeometry.ViewModels.AdminLessonEditModel
+@{
+    bool isEdit = !string.IsNullOrEmpty(Model.Id);
+    ViewData["Title"] = isEdit ? "Chỉnh sửa Bài học" : "Thêm Bài học mới";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="ylg-card p-4 p-md-5">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
+                <div>
+                    <h3 class="fw-bold text-dark mb-0">@(isEdit ? "Chỉnh sửa Bài học" : "Thêm Bài học mới")</h3>
+                    <small class="text-muted">Cấu hình chuẩn hóa theo cấu trúc Lesson trong tài liệu SRS</small>
+                </div>
+                <a asp-action="Lessons" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
+                </a>
+            </div>
+
+            <form asp-action="EditLesson" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Title" class="form-label fw-bold">Tên bài học</label>
+                        <input asp-for="Title" class="form-control" required placeholder="Ví dụ: Bài 1: Hình vuông" />
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="LessonCode" class="form-label fw-bold">Mã bài học</label>
+                        <input asp-for="LessonCode" class="form-control" required placeholder="LESSON_6_HV" />
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="Order" class="form-label fw-bold">Thứ tự hiển thị</label>
+                        <input asp-for="Order" type="number" class="form-control" required />
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="GradeLevel" class="form-label fw-bold">Cấp độ / Lớp học</label>
+                        <select asp-for="GradeLevel" class="form-select">
+                            <option value="Lop6">Lớp 6</option>
+                            <option value="Lop8">Lớp 8</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="TopicCode" class="form-label fw-bold">Mã chủ đề</label>
+                        <select asp-for="TopicCode" class="form-select">
+                            <option value="TU_GIAC_LOP6">TU_GIAC_LOP6 (Tứ giác Lớp 6)</option>
+                            <option value="TU_GIAC_LOP8">TU_GIAC_LOP8 (Tứ giác Lớp 8)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Summary" class="form-label fw-bold">Tóm tắt bài học</label>
+                    <input asp-for="Summary" class="form-control" placeholder="Mô tả ngắn gọn mục tiêu của bài" />
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Definition" class="form-label fw-bold">1. Khái niệm & Định nghĩa</label>
+                    <textarea asp-for="Definition" class="form-control" rows="3" placeholder="Nhập định nghĩa hình học..."></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PropertiesText" class="form-label fw-bold">2. Danh sách tính chất (Mỗi tính chất trên một dòng)</label>
+                    <textarea asp-for="PropertiesText" class="form-control" rows="4" placeholder="Bốn cạnh bằng nhau&#10;Bốn góc vuông&#10;Hai đường chéo vuông góc..."></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="FormulasText" class="form-label fw-bold">3. Công thức tính toán (Mỗi công thức trên một dòng)</label>
+                    <textarea asp-for="FormulasText" class="form-control" rows="3" placeholder="Chu vi: P = 4 x a&#10;Diện tích: S = a x a"></textarea>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="VisualExample" class="form-label fw-bold">4. Ví dụ trực quan</label>
+                        <textarea asp-for="VisualExample" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="RealWorldExample" class="form-label fw-bold">5. Ví dụ thực tế</label>
+                        <textarea asp-for="RealWorldExample" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- Feature toggles according to SRS -->
+                <div class="p-3 bg-light rounded-3 border mb-4">
+                    <h6 class="fw-bold text-dark mb-3">Cấu hình tính năng & Tương tác</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mb-2">
+                                <input asp-for="HasGeometryLab" class="form-check-input" type="checkbox">
+                                <label asp-for="HasGeometryLab" class="form-check-label fw-semibold">Bật thành phần Geometry Lab</label>
+                            </div>
+                            <div class="mt-2">
+                                <label asp-for="DefaultLabShape" class="form-label small text-muted">Hình Lab mặc định:</label>
+                                <select asp-for="DefaultLabShape" class="form-select form-select-sm">
+                                    <option value="HinhVuong">Hình vuông</option>
+                                    <option value="HinhChuNhat">Hình chữ nhật</option>
+                                    <option value="HinhThoi">Hình thoi</option>
+                                    <option value="HinhBinhHanh">Hình bình hành</option>
+                                    <option value="HinhThangCan">Hình thang cân</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mb-2">
+                                <input asp-for="HasMiniTest" class="form-check-input" type="checkbox">
+                                <label asp-for="HasMiniTest" class="form-check-label fw-semibold">Gắn bài kiểm tra Mini Test (ngưỡng 75%)</label>
+                            </div>
+                            <small class="text-muted d-block">
+                                Nếu tắt, bài học sẽ hoàn thành ngay khi học sinh nhấn nút <strong>Đánh dấu hoàn thành</strong>.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-ylg-primary px-5 py-2">
+                        <i class="bi bi-floppy me-1"></i> Lưu thông tin bài học
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,140 @@
+@model YouLearnGeometry.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Trang quản trị hệ thống";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1 text-dark">
+            <i class="bi bi-shield-lock-fill text-danger me-2"></i> Quản trị hệ thống (Admin Portal)
+        </h2>
+        <p class="text-muted mb-0">Theo dõi số liệu tổng hợp và quản lý dữ liệu MongoDB & Neo4j.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Users" class="btn btn-outline-secondary">
+            <i class="bi bi-people me-1"></i> Quản lý Người dùng
+        </a>
+        <a asp-action="Lessons" class="btn btn-outline-primary">
+            <i class="bi bi-book me-1"></i> Quản lý Bài học
+        </a>
+        <a asp-action="KnowledgeMapAdmin" class="btn btn-outline-success">
+            <i class="bi bi-diagram-3 me-1"></i> Quản lý Neo4j
+        </a>
+    </div>
+</div>
+
+<!-- Metrics Overview -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="ylg-card p-3 border-start border-4 border-primary">
+            <span class="text-muted small d-block">Tổng người dùng</span>
+            <h3 class="fw-bold text-dark mb-0">@Model.TotalUsers</h3>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="ylg-card p-3 border-start border-4 border-info">
+            <span class="text-muted small d-block">Tổng số bài học</span>
+            <h3 class="fw-bold text-dark mb-0">@Model.TotalLessons</h3>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="ylg-card p-3 border-start border-4 border-success">
+            <span class="text-muted small d-block">Lượt hoàn thành bài</span>
+            <h3 class="fw-bold text-dark mb-0">@Model.TotalCompletedLessons</h3>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="ylg-card p-3 border-start border-4 border-warning">
+            <span class="text-muted small d-block">Điểm kiểm tra trung bình</span>
+            <h3 class="fw-bold text-dark mb-0">@Model.AverageTestScore%</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Users -->
+    <div class="col-lg-6">
+        <div class="ylg-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0">Người dùng gần đây</h5>
+                <a asp-action="Users" class="small text-primary">Xem tất cả &rarr;</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle small">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Họ tên</th>
+                            <th>Email</th>
+                            <th>Lớp</th>
+                            <th>Vai trò</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var u in Model.RecentUsers)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@u.FullName</td>
+                                <td>@u.Email</td>
+                                <td><span class="badge bg-light text-dark border">@u.GradeLevel</span></td>
+                                <td>
+                                    <span class="badge @(u.Role == "Admin" ? "bg-danger" : "bg-primary")">
+                                        @u.Role
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lessons Management Preview -->
+    <div class="col-lg-6">
+        <div class="ylg-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0">Danh sách bài học</h5>
+                <a asp-action="EditLesson" class="btn btn-sm btn-ylg-primary">
+                    <i class="bi bi-plus-lg me-1"></i> Thêm bài học mới
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle small">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Tên bài</th>
+                            <th>Cấp độ</th>
+                            <th>Geometry Lab</th>
+                            <th>Mini Test</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var l in Model.Lessons)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@l.Title</td>
+                                <td><span class="badge bg-light text-dark border">@l.GradeLevel</span></td>
+                                <td>
+                                    <span class="badge @(l.HasGeometryLab ? "bg-success" : "bg-secondary")">
+                                        @(l.HasGeometryLab ? "Bật" : "Tắt")
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge @(l.HasMiniTest ? "bg-warning text-dark" : "bg-info")">
+                                        @(l.HasMiniTest ? "Có test" : "Chỉ đọc")
+                                    </span>
+                                </td>
+                                <td>
+                                    <a asp-action="EditLesson" asp-route-id="@l.Id" class="btn btn-sm btn-outline-primary">
+                                        Sửa
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

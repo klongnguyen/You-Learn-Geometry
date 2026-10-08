@@ -1,0 +1,148 @@
+@model YouLearnGeometry.ViewModels.PropertyBuilderViewModel
+@{
+    ViewData["Title"] = "Property Builder - Xây dựng & Suy luận hình";
+}
+
+<div class="mb-4">
+    <h2 class="fw-bold mb-1 text-dark">
+        <i class="bi bi-check2-square text-success me-2"></i> Property Builder
+    </h2>
+    <p class="text-muted mb-0">Tích chọn các tính chất hình học để kiểm tra xem dữ kiện đã đủ để suy ra hình học duy nhất hay chưa.</p>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Checkbox properties -->
+    <div class="col-lg-6">
+        <div class="ylg-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-list-check me-2"></i> Danh sách tính chất hình học
+                </h5>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearProps()">
+                    Bỏ chọn tất cả
+                </button>
+            </div>
+
+            <div class="d-flex flex-column gap-2 mb-4">
+                @foreach (var prop in Model.AvailableProperties)
+                {
+                    <div class="p-3 border rounded-3 bg-light d-flex align-items-center gap-3">
+                        <input class="form-check-input prop-checkbox fs-5 mt-0 flex-shrink-0" type="checkbox" value="@prop" id="p_@prop.GetHashCode()" onchange="deduceProperties()">
+                        <label class="form-check-label fw-semibold text-dark flex-grow-1 cursor-pointer" for="p_@prop.GetHashCode()">
+                            @prop
+                        </label>
+                    </div>
+                }
+            </div>
+
+            <button type="button" class="btn btn-ylg-primary w-100 py-2 fs-6" onclick="deduceProperties()">
+                <i class="bi bi-cpu me-1"></i> Thực hiện suy luận hình học
+            </button>
+        </div>
+    </div>
+
+    <!-- Right Column: Deduction Result & Visual preview -->
+    <div class="col-lg-6">
+        <div class="ylg-card p-4 h-100">
+            <h5 class="fw-bold text-dark mb-3 border-bottom pb-2">
+                <i class="bi bi-magic me-2"></i> Kết quả suy luận hình học
+            </h5>
+
+            <!-- Initial state -->
+            <div id="initialBox" class="text-center py-5 text-muted">
+                <i class="bi bi-hand-index-thumb fs-1 d-block mb-2 text-secondary"></i>
+                <p>Hãy tích chọn các tính chất ở cột bên trái để bắt đầu suy luận.</p>
+            </div>
+
+            <!-- Sufficient Result Box -->
+            <div id="sufficientBox" class="p-4 rounded-3 border border-success bg-success bg-opacity-10 mb-3" style="display:none;">
+                <span class="badge bg-success mb-2 px-3 py-1 rounded-pill">ĐẦY ĐỦ DỮ KIỆN</span>
+                <h3 class="fw-extrabold text-success mb-2" id="resShapeName">Hình vuông</h3>
+                <p class="text-dark small mb-3" id="resExplanation"></p>
+                <div class="text-center p-3 bg-white rounded border">
+                    <svg id="resSvg" width="200" height="150" viewBox="0 0 200 150">
+                        <polygon points="50,25 150,25 150,125 50,125" fill="rgba(16, 185, 129, 0.15)" stroke="#10b981" stroke-width="3" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Insufficient Result Box -->
+            <div id="insufficientBox" class="p-4 rounded-3 border border-warning bg-warning bg-opacity-10 mb-3" style="display:none;">
+                <span class="badge bg-warning text-dark mb-2 px-3 py-1 rounded-pill">CHƯA ĐỦ DỮ KIỆN</span>
+                <h5 class="fw-bold text-dark mb-2">Chưa thể xác định hình duy nhất!</h5>
+                <p class="text-dark small mb-3" id="resWarningExplanation"></p>
+                <div class="p-3 bg-white rounded border">
+                    <strong class="small text-dark d-block mb-2">Các hình học có thể thỏa mãn:</strong>
+                    <ul id="candidateList" class="mb-0 small text-muted ps-3"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function getSelectedProps() {
+            const checks = document.querySelectorAll('.prop-checkbox:checked');
+            return Array.from(checks).map(c => c.value);
+        }
+
+        function clearProps() {
+            document.querySelectorAll('.prop-checkbox').forEach(c => c.checked = false);
+            deduceProperties();
+        }
+
+        function deduceProperties() {
+            const selected = getSelectedProps();
+
+            if (selected.length === 0) {
+                document.getElementById('initialBox').style.display = 'block';
+                document.getElementById('sufficientBox').style.display = 'none';
+                document.getElementById('insufficientBox').style.display = 'none';
+                return;
+            }
+
+            fetch('/PropertyBuilder/Deduce', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(selected)
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('initialBox').style.display = 'none';
+
+                if (data.deduceState === 'Sufficient') {
+                    document.getElementById('sufficientBox').style.display = 'block';
+                    document.getElementById('insufficientBox').style.display = 'none';
+                    document.getElementById('resShapeName').innerText = data.matchedShapeName;
+                    document.getElementById('resExplanation').innerText = data.explanation;
+
+                    // Update SVG preview based on matched shape
+                    const svg = document.getElementById('resSvg');
+                    if (data.matchedShapeCode === 'HinhVuong') {
+                        svg.innerHTML = '<polygon points="50,25 150,25 150,125 50,125" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="3" />';
+                    } else if (data.matchedShapeCode === 'HinhChuNhat') {
+                        svg.innerHTML = '<polygon points="30,40 170,40 170,110 30,110" fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" stroke-width="3" />';
+                    } else if (data.matchedShapeCode === 'HinhThoi') {
+                        svg.innerHTML = '<polygon points="100,20 160,75 100,130 40,75" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" stroke-width="3" />';
+                    } else if (data.matchedShapeCode === 'HinhThangCan') {
+                        svg.innerHTML = '<polygon points="60,35 140,35 170,115 30,115" fill="rgba(139, 92, 246, 0.2)" stroke="#8b5cf6" stroke-width="3" />';
+                    }
+                } else {
+                    document.getElementById('sufficientBox').style.display = 'none';
+                    document.getElementById('insufficientBox').style.display = 'block';
+                    document.getElementById('resWarningExplanation').innerText = data.explanation;
+
+                    const list = document.getElementById('candidateList');
+                    list.innerHTML = '';
+                    (data.candidateShapes || []).forEach(shape => {
+                        const li = document.createElement('li');
+                        li.innerText = shape;
+                        list.appendChild(li);
+                    });
+                }
+            })
+            .catch(err => console.error(err));
+        }
+    </script>
+}

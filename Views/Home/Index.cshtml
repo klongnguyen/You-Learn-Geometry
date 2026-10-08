@@ -1,8 +1,142 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Trang chủ - Học hình học phẳng tương tác";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="row align-items-center py-5 gy-5">
+    <div class="col-lg-6">
+        <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold mb-3">
+            <i class="bi bi-stars me-1"></i> Phương pháp Vibe Coding & Khám phá trực quan
+        </span>
+        <h1 class="display-4 fw-extrabold text-dark tracking-tight mb-3">
+            Học Hình Học Phẳng <br />
+            <span class="text-primary">Thấu Hiểu Bản Chất</span>
+        </h1>
+        <p class="lead text-muted mb-4">
+            Nền tảng <strong>YLG (You Learn Geometry)</strong> hỗ trợ học sinh khám phá hình học theo quy trình chuẩn: 
+            <strong>Học &rarr; Tương tác kéo đỉnh &rarr; Suy luận cây tri thức &rarr; Thực hành &rarr; Kiểm tra</strong>.
+        </p>
+
+        <div class="d-flex flex-wrap gap-3 mb-4">
+            <a asp-controller="Account" asp-action="Register" class="btn btn-ylg-primary btn-lg px-4 py-3">
+                <i class="bi bi-rocket-takeoff me-2"></i> Bắt đầu học ngay
+            </a>
+            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary btn-lg px-4 py-3">
+                Đăng nhập tài khoản
+            </a>
+        </div>
+
+        <div class="p-3 bg-white border rounded-3 shadow-sm d-flex align-items-center gap-3">
+            <div class="rounded-circle bg-success-subtle text-success p-2 fs-4">
+                <i class="bi bi-database-check"></i>
+            </div>
+            <div class="small">
+                <strong class="text-dark">Kiến trúc Đa mô hình NoSQL:</strong>
+                <span class="text-muted d-block">MongoDB Atlas (Vận hành & Tiến độ) + Neo4j Aura (Knowledge Graph).</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="ylg-card p-4 shadow-lg position-relative">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-bounding-box text-primary me-2"></i> Trải nghiệm Geometry Lab
+                </h5>
+                <span class="badge bg-info-subtle text-info">Kéo đỉnh tương tác</span>
+            </div>
+            
+            <!-- Quick Demo SVG Quad -->
+            <div class="border rounded-3 p-3 bg-light text-center">
+                <svg width="100%" height="260" viewBox="0 0 400 260" style="background:#fff; border-radius:8px;">
+                    <!-- Grid background -->
+                    <defs>
+                        <pattern id="homeGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f1f5f9" stroke-width="1"/>
+                        </pattern>
+                    </defs>
+                    <rect width="400" height="260" fill="url(#homeGrid)" />
+
+                    <!-- Quadrilateral Polygon -->
+                    <polygon points="80,50 320,50 320,210 80,210" fill="rgba(79, 70, 229, 0.12)" stroke="#4f46e5" stroke-width="3" />
+                    <line x1="80" y1="50" x2="320" y2="210" stroke="#94a3b8" stroke-dasharray="4,4" stroke-width="1.5" />
+                    <line x1="320" y1="50" x2="80" y2="210" stroke="#94a3b8" stroke-dasharray="4,4" stroke-width="1.5" />
+
+                    <!-- Vertices -->
+                    <circle cx="80" cy="50" r="7" fill="#4f46e5" stroke="#fff" stroke-width="2" />
+                    <text x="65" y="45" font-weight="bold" fill="#1e1b4b">A</text>
+
+                    <circle cx="320" cy="50" r="7" fill="#4f46e5" stroke="#fff" stroke-width="2" />
+                    <text x="330" y="45" font-weight="bold" fill="#1e1b4b">B</text>
+
+                    <circle cx="320" cy="210" r="7" fill="#4f46e5" stroke="#fff" stroke-width="2" />
+                    <text x="330" y="225" font-weight="bold" fill="#1e1b4b">C</text>
+
+                    <circle cx="80" cy="210" r="7" fill="#4f46e5" stroke="#fff" stroke-width="2" />
+                    <text x="65" y="225" font-weight="bold" fill="#1e1b4b">D</text>
+
+                    <!-- Info Tag -->
+                    <rect x="135" y="115" width="130" height="30" rx="15" fill="#4f46e5" />
+                    <text x="200" y="135" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Hình chữ nhật (90°)</text>
+                </svg>
+            </div>
+
+            <div class="row g-2 mt-3 text-center">
+                <div class="col-4">
+                    <div class="p-2 border rounded-3 bg-white">
+                        <small class="text-muted d-block">4 Góc vuông</small>
+                        <strong class="text-success">90° = 90°</strong>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="p-2 border rounded-3 bg-white">
+                        <small class="text-muted d-block">2 Cạnh đối</small>
+                        <strong class="text-primary">AB = CD</strong>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="p-2 border rounded-3 bg-white">
+                        <small class="text-muted d-block">Đường chéo</small>
+                        <strong class="text-purple" style="color:#7c3aed;">AC = BD</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row g-4 py-5 border-top">
+    <div class="col-md-4">
+        <div class="ylg-card p-4 h-100">
+            <div class="rounded-3 bg-primary-subtle text-primary p-3 d-inline-block mb-3 fs-3">
+                <i class="bi bi-diagram-3"></i>
+            </div>
+            <h5 class="fw-bold">Geometry Knowledge Map</h5>
+            <p class="text-muted small">
+                Xây dựng trên nền tảng <strong>Neo4j Graph Database</strong>, biểu diễn mối liên hệ kế thừa tính chất giữa Hình vuông, Hình chữ nhật, Hình thoi, Hình bình hành và Hình thang.
+            </p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="ylg-card p-4 h-100">
+            <div class="rounded-3 bg-success-subtle text-success p-3 d-inline-block mb-3 fs-3">
+                <i class="bi bi-check2-square"></i>
+            </div>
+            <h5 class="fw-bold">Property Builder</h5>
+            <p class="text-muted small">
+                Lựa chọn các tính chất hình học để hệ thống suy luận loại hình tương ứng. Cung cấp cảnh báo khi dữ kiện chưa đủ hoặc hiển thị danh sách các hình tiềm năng.
+            </p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="ylg-card p-4 h-100">
+            <div class="rounded-3 bg-warning-subtle text-warning p-3 d-inline-block mb-3 fs-3">
+                <i class="bi bi-trophy"></i>
+            </div>
+            <h5 class="fw-bold">Tiến Độ & Gamification</h5>
+            <p class="text-muted small">
+                Theo dõi quá trình học tập theo thời gian thực, duy trì chuỗi học <strong>Streak liên tục</strong> và mở khóa các huy hiệu học tập danh giá.
+            </p>
+        </div>
+    </div>
 </div>

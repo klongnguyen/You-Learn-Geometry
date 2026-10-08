@@ -1,0 +1,115 @@
+@{
+    ViewData["Title"] = "Real-world Geometry - Phân tích ảnh thực tế (Coming Soon)";
+}
+
+<div class="row justify-content-center py-4">
+    <div class="col-lg-10">
+        <!-- Coming Soon Header Banner -->
+        <div class="hero-banner mb-5 text-center p-5">
+            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-3">
+                <i class="bi bi-tools me-1"></i> Tính năng đang được hoàn thiện (Coming Soon)
+            </span>
+            <h1 class="display-5 fw-extrabold mb-3">Phân Tích Hình Học Từ Ảnh Thực Tế</h1>
+            <p class="lead text-white-50 mx-auto" style="max-width: 680px;">
+                Chức năng ứng dụng <strong>OpenCvSharp4 / Computer Vision</strong> để quét vật thể từ cuộc sống hàng ngày (gạch hoa, cánh diều, biển báo...) và tự động chuyển hóa thành mô hình hình học phẳng.
+            </p>
+        </div>
+
+        <!-- Workflow Illustration -->
+        <div class="ylg-card p-4 p-md-5 mb-5">
+            <h4 class="fw-bold text-dark text-center mb-4">Quy trình xử lý theo tài liệu đặc tả (SRS v1.1)</h4>
+
+            <div class="row g-4 text-center">
+                <div class="col-md-3">
+                    <div class="p-4 bg-light rounded-4 h-100 border">
+                        <div class="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center fs-3 mb-3" style="width:60px; height:60px;">
+                            <i class="bi bi-camera"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark">1. Upload ảnh</h6>
+                        <small class="text-muted">Tải ảnh chụp vật thể rõ nét (JPEG/PNG &le; 5MB).</small>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="p-4 bg-light rounded-4 h-100 border">
+                        <div class="rounded-circle bg-info-subtle text-info d-inline-flex align-items-center justify-content-center fs-3 mb-3" style="width:60px; height:60px;">
+                            <i class="bi bi-filter"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark">2. Tiền xử lý & Canny</h6>
+                        <small class="text-muted">Lọc nhiễu Gaussian Blur & phát hiện cạnh bằng Canny Threshold.</small>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="p-4 bg-light rounded-4 h-100 border">
+                        <div class="rounded-circle bg-warning-subtle text-warning d-inline-flex align-items-center justify-content-center fs-3 mb-3" style="width:60px; height:60px;">
+                            <i class="bi bi-bounding-box-circles"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark">3. Contour & Đỉnh</h6>
+                        <small class="text-muted">Tìm đường bao lớn nhất, xấp xỉ đa giác (ApproxPolyDP).</small>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="p-4 bg-light rounded-4 h-100 border">
+                        <div class="rounded-circle bg-success-subtle text-success d-inline-flex align-items-center justify-content-center fs-3 mb-3" style="width:60px; height:60px;">
+                            <i class="bi bi-mortarboard"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark">4. Kết luận & Gợi ý</h6>
+                        <small class="text-muted">Xác định hình học và đề xuất bài học liên quan trong hệ thống.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Preview Mockup -->
+        <div class="ylg-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-eye me-2"></i> Bản xem trước giao diện phân tích (Demo Preview)
+                </h5>
+                <span class="badge bg-secondary">Mô phỏng</span>
+            </div>
+
+            <div class="row g-4 align-items-center">
+                <div class="col-md-6 text-center">
+                    <div class="border rounded-4 p-4 bg-light position-relative overflow-hidden">
+                        <svg width="240" height="200" viewBox="0 0 240 200" style="background:#fff; border-radius:12px;" class="shadow-sm">
+                            <rect x="30" y="20" width="180" height="160" fill="#f8fafc" stroke="#94a3b8" stroke-dasharray="3,3" />
+                            <polygon points="40,30 200,30 200,170 40,170" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="3" />
+                            <circle cx="40" cy="30" r="5" fill="#10b981" />
+                            <circle cx="200" cy="30" r="5" fill="#10b981" />
+                            <circle cx="200" cy="170" r="5" fill="#10b981" />
+                            <circle cx="40" cy="170" r="5" fill="#10b981" />
+                        </svg>
+                        <span class="badge bg-success position-absolute top-0 start-0 m-3">
+                            <i class="bi bi-check-lg me-1"></i> Contour đã phát hiện
+                        </span>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <span class="badge bg-primary-subtle text-primary mb-2">Kết quả nhận diện tự động</span>
+                    <h3 class="fw-bold text-dark mb-2">Hình chữ nhật (Tỉ lệ 9:8)</h3>
+                    <p class="text-muted small mb-3">
+                        Hệ thống đã nhận diện 4 góc vuông (90°) và hai cặp cạnh đối song song từ đường bao vật thể thực tế.
+                    </p>
+
+                    <div class="p-3 bg-light rounded-3 border mb-3">
+                        <strong class="d-block small text-dark mb-1">Bài học gợi ý:</strong>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-primary fw-semibold small">Bài 2: Hình chữ nhật (Lớp 6)</span>
+                            <a asp-controller="Curriculum" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                                Học bài này
+                            </a>
+                        </div>
+                    </div>
+
+                    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-ylg-primary">
+                        <i class="bi bi-arrow-left me-1"></i> Quay lại Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

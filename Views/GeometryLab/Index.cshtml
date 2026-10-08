@@ -1,0 +1,127 @@
+@{
+    ViewData["Title"] = "Geometry Lab - Phòng thí nghiệm hình học";
+    string initShape = ViewBag.InitialShape ?? "HinhVuong";
+    bool challengeMode = ViewBag.ChallengeMode ?? false;
+}
+
+<div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1 text-dark">
+            <i class="bi bi-bounding-box text-primary me-2"></i> Geometry Lab
+        </h2>
+        <p class="text-muted mb-0">Thao tác trực tiếp với các đỉnh hình học để quan sát sự biến đổi tính chất theo thời gian thực.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <button id="toggleChallengeBtn" class="btn btn-outline-warning fw-semibold px-3 @(challengeMode ? "active" : "")">
+            <i class="bi bi-trophy-fill me-1"></i> Challenge Mode
+        </button>
+    </div>
+</div>
+
+<!-- Challenge Banner (hidden by default unless Challenge Mode enabled) -->
+<div id="challengeBanner" class="alert alert-warning border-warning-subtle shadow-sm mb-4" style="display: @(challengeMode ? "block" : "none");">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <strong class="d-block fs-6 text-dark" id="challengeTitle">🎯 Thử thách: Hãy biến đổi hình thành một Hình Thoi</strong>
+            <small class="text-muted" id="challengeDesc">Kéo các đỉnh sao cho 4 cạnh có độ dài bằng nhau!</small>
+        </div>
+        <div id="challengeStatusBadge">
+            <span class="badge bg-secondary px-3 py-2 fs-6">Đang thực hiện...</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="ylg-card p-3 p-md-4">
+            <!-- Canvas Toolbar -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-secondary" onclick="loadShape('HinhVuong')">Hình vuông</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="loadShape('HinhChuNhat')">Hình chữ nhật</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="loadShape('HinhThoi')">Hình thoi</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="loadShape('HinhBinhHanh')">Hình bình hành</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="loadShape('HinhThangCan')">Hình thang cân</button>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button id="btnResetCanvas" class="btn btn-sm btn-light border">
+                        <i class="bi bi-arrow-counterclockwise"></i> Đặt lại
+                    </button>
+                </div>
+            </div>
+
+            <!-- SVG Lab Canvas -->
+            <div class="lab-canvas-container" style="height: 480px;">
+                <svg id="standaloneLabSvg" width="100%" height="480" viewBox="0 0 600 480" data-challenge="@(challengeMode ? "true" : "false")" data-initial-shape="@initShape">
+                    <defs>
+                        <pattern id="gridPattern" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f1f5f9" stroke-width="1"/>
+                        </pattern>
+                    </defs>
+                    <rect width="600" height="480" fill="url(#gridPattern)" />
+
+                    <!-- Polygon -->
+                    <polygon id="polyShape" class="lab-polygon" points="150,100 450,100 450,380 150,380" />
+
+                    <!-- Diagonals -->
+                    <line id="diagAC" class="lab-diagonal" x1="150" y1="100" x2="450" y2="380" />
+                    <line id="diagBD" class="lab-diagonal" x1="450" y1="100" x2="150" y2="380" />
+
+                    <!-- Vertices -->
+                    <circle id="vertA" class="lab-vertex" cx="150" cy="100" r="9" />
+                    <text id="lblTextA" x="130" y="90" font-weight="bold" fill="#1e1b4b" font-size="16">A</text>
+
+                    <circle id="vertB" class="lab-vertex" cx="450" cy="100" r="9" />
+                    <text id="lblTextB" x="465" y="90" font-weight="bold" fill="#1e1b4b" font-size="16">B</text>
+
+                    <circle id="vertC" class="lab-vertex" cx="450" cy="380" r="9" />
+                    <text id="lblTextC" x="465" y="405" font-weight="bold" fill="#1e1b4b" font-size="16">C</text>
+
+                    <circle id="vertD" class="lab-vertex" cx="150" cy="380" r="9" />
+                    <text id="lblTextD" x="130" y="405" font-weight="bold" fill="#1e1b4b" font-size="16">D</text>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Real-time Math Inspector -->
+    <div class="col-lg-4">
+        <div class="ylg-card p-4 mb-4">
+            <span class="text-muted small d-block mb-1">Kết luận loại hình:</span>
+            <h3 id="currentShapeName" class="fw-extrabold text-primary mb-3">Hình chữ nhật</h3>
+
+            <div class="p-3 bg-light rounded-3 border mb-3">
+                <h6 class="fw-bold text-dark small mb-2"><i class="bi bi-rulers me-1"></i> Độ dài 4 cạnh (px):</h6>
+                <div class="row g-2 text-center small">
+                    <div class="col-6"><div class="p-2 bg-white rounded border">AB: <strong id="valAB">300</strong></div></div>
+                    <div class="col-6"><div class="p-2 bg-white rounded border">BC: <strong id="valBC">280</strong></div></div>
+                    <div class="col-6"><div class="p-2 bg-white rounded border">CD: <strong id="valCD">300</strong></div></div>
+                    <div class="col-6"><div class="p-2 bg-white rounded border">DA: <strong id="valDA">280</strong></div></div>
+                </div>
+            </div>
+
+            <div class="p-3 bg-light rounded-3 border mb-3">
+                <h6 class="fw-bold text-dark small mb-2"><i class="bi bi-pie-chart me-1"></i> Góc tại 4 đỉnh:</h6>
+                <div class="row g-2 text-center small">
+                    <div class="col-6"><div class="p-2 bg-white rounded border">Â: <strong id="valAngA">90°</strong></div></div>
+                    <div class="col-6"><div class="p-2 bg-white rounded border">B̂: <strong id="valAngB">90°</strong></div></div>
+                    <div class="col-6"><div class="p-2 bg-white rounded border">Ĉ: <strong id="valAngC">90°</strong></div></div>
+                    <div class="col-6"><div class="p-2 bg-white rounded border">D̂: <strong id="valAngD">90°</strong></div></div>
+                </div>
+            </div>
+
+            <div class="p-3 bg-light rounded-3 border">
+                <h6 class="fw-bold text-dark small mb-2"><i class="bi bi-slash-lg me-1"></i> Hai đường chéo:</h6>
+                <div class="d-flex justify-content-between small">
+                    <span>AC: <strong id="valAC">410</strong></span>
+                    <span>BD: <strong id="valBD">410</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/geometry-lab.js" asp-append-version="true"></script>
+}

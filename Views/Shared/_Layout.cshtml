@@ -1,47 +1,199 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@using System.Security.Claims
+<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - YouLearnGeometry</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - YLG (You Learn Geometry)</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/YouLearnGeometry.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">YouLearnGeometry</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+            <div class="container-fluid px-lg-4">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-triangle-half text-primary"></i>
+                    <span>YLG</span>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-6 fw-normal d-none d-sm-inline">Geometry</span>
+                </a>
+                
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Dashboard" asp-action="Index">
+                                    <i class="bi bi-grid-1x2 me-1"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Curriculum" asp-action="Index">
+                                    <i class="bi bi-book me-1"></i> Bài học
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="KnowledgeMap" asp-action="Index">
+                                    <i class="bi bi-diagram-3 me-1"></i> Bản đồ tri thức
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="GeometryLab" asp-action="Index">
+                                    <i class="bi bi-bounding-box me-1"></i> Geometry Lab
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="PropertyBuilder" asp-action="Index">
+                                    <i class="bi bi-check2-square me-1"></i> Property Builder
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center gap-1" asp-controller="RealWorld" asp-action="Index">
+                                    <i class="bi bi-camera me-1"></i> Thực tế
+                                    <span class="badge bg-secondary-subtle text-secondary" style="font-size: 0.65rem;">Coming Soon</span>
+                                </a>
+                            </li>
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-danger fw-bold" asp-controller="Admin" asp-action="Index">
+                                        <i class="bi bi-shield-lock me-1"></i> Quản trị
+                                    </a>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                            </li>
+                        }
+                    </ul>
+
+                    <ul class="navbar-nav align-items-center gap-2">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            var grade = User.FindFirstValue("GradeLevel") ?? "Lop6";
+                            var gradeLabel = grade == "Lop6" ? "Lớp 6" : "Lớp 8";
+
+                            <!-- Grade Switcher -->
+                            <li class="nav-item dropdown">
+                                <button class="btn btn-sm btn-light border dropdown-toggle fw-semibold rounded-pill px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-mortarboard text-primary me-1"></i> @gradeLabel
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                    <li><h6 class="dropdown-header">Chọn cấp độ học</h6></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="UpdateGrade" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="gradeLevel" value="Lop6" />
+                                            <button type="submit" class="dropdown-item @(grade == "Lop6" ? "active" : "")">
+                                                Lớp 6 (Hình phẳng trực quan)
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="UpdateGrade" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="gradeLevel" value="Lop8" />
+                                            <button type="submit" class="dropdown-item @(grade == "Lop8" ? "active" : "")">
+                                                Lớp 8 (Tứ giác & Định lý suy luận)
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <!-- User Profile Dropdown -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                                        @(User.Identity.Name?.Substring(0, 1).ToUpper() ?? "U")
+                                    </div>
+                                    <span class="fw-semibold">@User.Identity.Name</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                                            <i class="bi bi-person me-2"></i> Hồ sơ cá nhân
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="bi bi-box-arrow-right me-2"></i> Đăng xuất
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="btn btn-outline-primary fw-semibold px-3" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-ylg-primary px-3" asp-controller="Account" asp-action="Register">Đăng ký học ngay</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    <div class="container py-4 flex-grow-1">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-sm rounded-3 mb-4" role="alert">
+                <i class="bi bi-check-circle-fill fs-5 me-2"></i>
+                <div>@TempData["SuccessMessage"]</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-sm rounded-3 mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill fs-5 me-2"></i>
+                <div>@TempData["ErrorMessage"]</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["InfoMessage"] != null)
+        {
+            <div class="alert alert-info alert-dismissible fade show d-flex align-items-center shadow-sm rounded-3 mb-4" role="alert">
+                <i class="bi bi-info-circle-fill fs-5 me-2"></i>
+                <div>@TempData["InfoMessage"]</div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - YouLearnGeometry - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="footer-custom">
+        <div class="container d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+            <div>
+                <strong>YLG (You Learn Geometry)</strong> &copy; 2026 - Đồ án NoSQL HUIT (MongoDB + Neo4j)
+            </div>
+            <div class="text-muted small">
+                <span>Giảng viên hướng dẫn: Thầy Bình</span> &bull; 
+                <span>Nhóm 02: Nguyễn Kim Long</span>
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

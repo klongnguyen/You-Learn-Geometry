@@ -1,0 +1,61 @@
+@model YouLearnGeometry.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Đăng nhập tài khoản";
+}
+
+<div class="row justify-content-center py-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="ylg-card p-4 p-md-5 shadow-lg">
+            <div class="text-center mb-4">
+                <div class="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center mb-2" style="width: 56px; height: 56px;">
+                    <i class="bi bi-person-fill fs-3"></i>
+                </div>
+                <h3 class="fw-bold text-dark">Đăng nhập</h3>
+                <p class="text-muted small">Chào mừng bạn quay lại với hành trình học hình học!</p>
+            </div>
+
+            <form asp-action="Login" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ReturnUrl" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger small p-2" role="alert"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Identifier" class="form-label fw-semibold small text-muted"></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope"></i></span>
+                        <input asp-for="Identifier" class="form-control border-start-0" placeholder="admin hoặc hocsinh@ylg.edu.vn" />
+                    </div>
+                    <span asp-validation-for="Identifier" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Password" class="form-label fw-semibold small text-muted"></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock"></i></span>
+                        <input asp-for="Password" class="form-control border-start-0" placeholder="Nhập mật khẩu" />
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn btn-ylg-primary w-100 py-2 fs-6 mb-3">
+                    Đăng nhập ngay <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+            </form>
+
+            <div class="border-top pt-3 text-center small text-muted">
+                Chưa có tài khoản? <a asp-action="Register" class="text-primary fw-semibold">Đăng ký mới tại đây</a>
+            </div>
+
+            <div class="mt-4 p-3 bg-light rounded-3 border small">
+                <strong class="text-dark d-block mb-1">Tài khoản demo sẵn có:</strong>
+                <div>&bull; Admin: <code>admin</code> / pass: <code>admin</code></div>
+                <div>&bull; Học sinh: <code>hocsinh@ylg.edu.vn</code> / pass: <code>123</code></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
