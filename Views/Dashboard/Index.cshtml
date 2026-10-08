@@ -1,7 +1,13 @@
 @model YouLearnGeometry.ViewModels.DashboardViewModel
 @{
-    ViewData["Title"] = "Student Dashboard";
-    var gradeName = Model.User.GradeLevel == "Lop6" ? "Lớp 6 (Hình phẳng trực quan)" : "Lớp 8 (Tứ giác & Chứng minh)";
+    var gradeName = Model.User.GradeLevel switch
+    {
+        "Lop6" => "Lớp 6 (Hình phẳng trực quan)",
+        "Lop7" => "Lớp 7 (Góc & Tam giác)",
+        "Lop8" => "Lớp 8 (Tứ giác & Chứng minh)",
+        "Lop9" => "Lớp 9 (Hệ thức lượng & Đường tròn)",
+        _ => "Hình học phẳng THCS"
+    };
 }
 
 <!-- Welcome & Continue Learning Banner -->

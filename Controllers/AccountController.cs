@@ -194,7 +194,15 @@ public class AccountController : Controller
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
         }
 
-        TempData["SuccessMessage"] = $"Đã cập nhật cấp độ học thành {(gradeLevel == "Lop6" ? "Lớp 6" : "Lớp 8")} thành công!";
+        string displayGrade = gradeLevel switch
+        {
+            "Lop6" => "Lớp 6",
+            "Lop7" => "Lớp 7",
+            "Lop8" => "Lớp 8",
+            "Lop9" => "Lớp 9",
+            _ => gradeLevel
+        };
+        TempData["SuccessMessage"] = $"Đã cập nhật cấp độ học thành {displayGrade} thành công!";
         return RedirectToAction("Index", "Dashboard");
     }
 

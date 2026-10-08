@@ -80,7 +80,14 @@
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             var grade = User.FindFirstValue("GradeLevel") ?? "Lop6";
-                            var gradeLabel = grade == "Lop6" ? "Lớp 6" : "Lớp 8";
+                            var gradeLabel = grade switch
+                            {
+                                "Lop6" => "Lớp 6",
+                                "Lop7" => "Lớp 7",
+                                "Lop8" => "Lớp 8",
+                                "Lop9" => "Lớp 9",
+                                _ => "Lớp 6"
+                            };
 
                             <!-- Grade Switcher -->
                             <li class="nav-item dropdown">
@@ -101,9 +108,27 @@
                                     <li>
                                         <form asp-controller="Account" asp-action="UpdateGrade" method="post">
                                             @Html.AntiForgeryToken()
+                                            <input type="hidden" name="gradeLevel" value="Lop7" />
+                                            <button type="submit" class="dropdown-item @(grade == "Lop7" ? "active" : "")">
+                                                Lớp 7 (Góc & Tam giác)
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="UpdateGrade" method="post">
+                                            @Html.AntiForgeryToken()
                                             <input type="hidden" name="gradeLevel" value="Lop8" />
                                             <button type="submit" class="dropdown-item @(grade == "Lop8" ? "active" : "")">
                                                 Lớp 8 (Tứ giác & Định lý suy luận)
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="UpdateGrade" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="gradeLevel" value="Lop9" />
+                                            <button type="submit" class="dropdown-item @(grade == "Lop9" ? "active" : "")">
+                                                Lớp 9 (Hệ thức lượng & Đường tròn)
                                             </button>
                                         </form>
                                     </li>
